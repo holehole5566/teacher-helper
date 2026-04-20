@@ -2,67 +2,67 @@
   "students": [
     {
       "seat_number": 1,
-      "name": "諺諺",
+      "name": "野比大雄",
       "duty_enabled": true,
       "lunch_enabled": true
     },
     {
       "seat_number": 2,
-      "name": "帥哥",
+      "name": "源靜香",
       "duty_enabled": true,
       "lunch_enabled": true
     },
     {
       "seat_number": 3,
-      "name": "麻糬",
+      "name": "剛田武",
       "duty_enabled": true,
       "lunch_enabled": true
     },
     {
       "seat_number": 4,
-      "name": "寶寶",
+      "name": "骨川小夫",
       "duty_enabled": true,
       "lunch_enabled": true
     },
     {
       "seat_number": 5,
-      "name": "雞雞",
+      "name": "漩渦鳴人",
       "duty_enabled": true,
       "lunch_enabled": true
     },
     {
       "seat_number": 6,
-      "name": "變態",
+      "name": "春野櫻",
       "duty_enabled": true,
       "lunch_enabled": true
     },
     {
       "seat_number": 7,
-      "name": "Roger",
+      "name": "宇智波佐助",
       "duty_enabled": true,
       "lunch_enabled": false
     },
     {
       "seat_number": 8,
-      "name": "萱萱",
+      "name": "竈門炭治郎",
       "duty_enabled": true,
       "lunch_enabled": true
     },
     {
       "seat_number": 9,
-      "name": "熊熊",
+      "name": "竈門禰豆子",
       "duty_enabled": true,
       "lunch_enabled": true
     },
     {
       "seat_number": 10,
-      "name": "小劉",
+      "name": "孫悟空",
       "duty_enabled": true,
       "lunch_enabled": true
     },
     {
       "seat_number": 11,
-      "name": "Faker",
+      "name": "魯夫",
       "duty_enabled": true,
       "lunch_enabled": true
     }
