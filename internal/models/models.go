@@ -26,7 +26,7 @@ type Config struct {
 	Students  []Student    `json:"students"`
 	Settings  Settings     `json:"settings"`
 	Holidays  []string     `json:"holidays"`
-	Timetable [5][7]string `json:"timetable"`
+	Timetable [5][8]string `json:"timetable"`
 }
 
 // LunchAssignment pairs a student with a meal bucket.

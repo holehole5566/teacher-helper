@@ -3,13 +3,14 @@
   import { GetTodayDuty, GetTimetable, GetSettings } from '../../../wailsjs/go/main/App';
 
   const dayLabels = ['日', '一', '二', '三', '四', '五', '六'];
+  const periodLabels = ['1', '2', '3', '4', '午休', '5', '6', '7'];
 
   let now = new Date();
   let clockStr = '';
   let dateStr = '';
   let dutyStudents: any[] = [];
   let lunchAssignments: any[] = [];
-  let todayClasses: { period: number; subject: string }[] = [];
+  let todayClasses: { period: string; subject: string; idx: number }[] = [];
   let currentPeriod = -1;
   let periodTimes: string[] = [];
   let clockInterval: ReturnType<typeof setInterval>;
@@ -51,12 +52,15 @@
     const dow = d.getDay();
     if (dow >= 1 && dow <= 5 && tt) {
       const dayClasses = tt[dow - 1] || [];
-      todayClasses = [];
+      const classes: typeof todayClasses = [];
       for (let i = 0; i < dayClasses.length; i++) {
-        if (dayClasses[i]) {
-          todayClasses.push({ period: i + 1, subject: dayClasses[i] });
+        if (i === 4) {
+          classes.push({ period: periodLabels[i], subject: dayClasses[i] || '午休', idx: i });
+        } else if (dayClasses[i]) {
+          classes.push({ period: periodLabels[i], subject: dayClasses[i], idx: i });
         }
       }
+      todayClasses = classes;
     }
 
     updateClock();
@@ -84,11 +88,11 @@
         <h2>📚 今日課表</h2>
         {#if todayClasses.length > 0}
           <div class="class-list">
-            {#each todayClasses as cls, i}
-              <div class="class-row" class:active={i === currentPeriod}>
+            {#each todayClasses as cls}
+              <div class="class-row" class:active={cls.idx === currentPeriod}>
                 <span class="period-num">{cls.period}</span>
                 <span class="subject">{cls.subject}</span>
-                {#if i === currentPeriod}
+                {#if cls.idx === currentPeriod}
                   <span class="now-tag">NOW</span>
                 {/if}
               </div>

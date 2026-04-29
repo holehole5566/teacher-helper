@@ -114,6 +114,20 @@ func (dh *DataHandler) migrateConfig(config *models.Config) bool {
 		}
 	}
 
+	// Migrate 7-period timetable → 8-period (insert 午休 at index 4)
+	var rawTT struct {
+		Timetable [][]string `json:"timetable"`
+	}
+	if err := json.Unmarshal(raw, &rawTT); err == nil && len(rawTT.Timetable) == 5 {
+		if len(rawTT.Timetable[0]) == 7 {
+			for d := 0; d < 5; d++ {
+				old := rawTT.Timetable[d]
+				config.Timetable[d] = [8]string{old[0], old[1], old[2], old[3], "", old[4], old[5], old[6]}
+			}
+			updated = true
+		}
+	}
+
 	return updated
 }
 
@@ -229,7 +243,7 @@ func (dh *DataHandler) SaveHolidays(holidays []string) error {
 }
 
 // SaveTimetable saves the timetable to config.
-func (dh *DataHandler) SaveTimetable(timetable [5][7]string) error {
+func (dh *DataHandler) SaveTimetable(timetable [5][8]string) error {
 	dh.mu.Lock()
 	defer dh.mu.Unlock()
 	config, err := dh.loadConfigUnsafe()

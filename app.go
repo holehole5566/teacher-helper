@@ -339,16 +339,16 @@ func (a *App) SetFullscreen(enabled bool) {
 	}
 }
 
-// GetTimetable returns the 5×7 timetable.
-func (a *App) GetTimetable() [5][7]string {
+// GetTimetable returns the 5×8 timetable.
+func (a *App) GetTimetable() [5][8]string {
 	config, err := a.dh.LoadConfig()
 	if err != nil {
-		return [5][7]string{}
+		return [5][8]string{}
 	}
 	return config.Timetable
 }
 
-// SaveTimetable saves the 5×7 timetable.
-func (a *App) SaveTimetable(timetable [5][7]string) error {
+// SaveTimetable saves the 5×8 timetable.
+func (a *App) SaveTimetable(timetable [5][8]string) error {
 	return a.dh.SaveTimetable(timetable)
 }

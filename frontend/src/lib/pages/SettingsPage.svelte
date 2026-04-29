@@ -9,7 +9,8 @@
   let lunchStartNumber = 1;
   let mealBucketsStr = '';
   let countdownTimes: string[] = [];
-  let periodTimes: string[] = ['','','','','','',''];
+  let periodTimes: string[] = ['','','','','','','',''];
+  const periodTimeLabels = ['第1節', '第2節', '第3節', '第4節', '午休', '第5節', '第6節', '第7節'];
   let newTime = '';
   let saved = false;
 
@@ -23,7 +24,7 @@
     mealBucketsStr = (s.meal_buckets || []).join('，');
     countdownTimes = (s.countdown_times || []).slice().sort();
     const pt = s.period_times || [];
-    for (let i = 0; i < 7; i++) periodTimes[i] = pt[i] || '';
+    for (let i = 0; i < 8; i++) periodTimes[i] = pt[i] || '';
     periodTimes = periodTimes;
   }
 
@@ -110,7 +111,7 @@
       <div class="period-grid">
         {#each periodTimes as _, i}
           <div class="period-input">
-            <span class="period-label">第{i + 1}節</span>
+            <span class="period-label">{periodTimeLabels[i]}</span>
             <input type="time" bind:value={periodTimes[i]} />
           </div>
         {/each}

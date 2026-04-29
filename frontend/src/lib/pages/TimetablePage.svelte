@@ -3,7 +3,8 @@
   import { GetTimetable, SaveTimetable } from '../../../wailsjs/go/main/App';
 
   const days = ['一', '二', '三', '四', '五'];
-  const periods = 7;
+  const periods = 8;
+  const periodLabels = ['第1節', '第2節', '第3節', '第4節', '午休', '第5節', '第6節', '第7節'];
 
   // timetable[day][period]
   let timetable: string[][] = Array.from({ length: 5 }, () => Array(periods).fill(''));
@@ -47,7 +48,7 @@
         <tbody>
           {#each Array(periods) as _, p}
             <tr>
-              <td class="period-col">第{p + 1}節</td>
+              <td class="period-col">{periodLabels[p]}</td>
               {#each days as _, d}
                 <td class="cell">
                   <input
