@@ -19,6 +19,8 @@ type Settings struct {
 	MealBuckets       []string `json:"meal_buckets"`
 	CountdownTimes    []string `json:"countdown_times"`
 	PeriodTimes       []string `json:"period_times"`
+	CountdownMusic    string   `json:"countdown_music"`
+	CountdownVolume   float64  `json:"countdown_volume"`
 }
 
 // Config is the top-level JSON structure persisted to config.json.

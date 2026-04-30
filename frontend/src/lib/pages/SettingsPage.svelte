@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { GetSettings, SaveSettings } from '../../../wailsjs/go/main/App';
+  import { GetSettings, SaveSettings, SelectCountdownMusic, GetCountdownMusicData } from '../../../wailsjs/go/main/App';
 
   let semesterStart = '';
   let dutyGroupSize = 2;
@@ -13,6 +13,8 @@
   const periodTimeLabels = ['第1節', '第2節', '第3節', '第4節', '午休', '第5節', '第6節', '第7節'];
   let newTime = '';
   let saved = false;
+  let countdownMusic = '';
+  let countdownVolume = 0.5;
 
   async function loadSettings() {
     const s = await GetSettings();
@@ -23,6 +25,8 @@
     lunchStartNumber = s.lunch_start_number || 1;
     mealBucketsStr = (s.meal_buckets || []).join('，');
     countdownTimes = (s.countdown_times || []).slice().sort();
+    countdownMusic = s.countdown_music || '';
+    countdownVolume = s.countdown_volume > 0 ? s.countdown_volume : 0.5;
     const pt = s.period_times || [];
     for (let i = 0; i < 8; i++) periodTimes[i] = pt[i] || '';
     periodTimes = periodTimes;
@@ -38,6 +42,31 @@
 
   function removeTime(t: string) {
     countdownTimes = countdownTimes.filter(x => x !== t);
+  }
+
+  async function pickMusic() {
+    const path = await SelectCountdownMusic();
+    if (path) countdownMusic = path;
+  }
+
+  function clearMusic() {
+    countdownMusic = '';
+  }
+
+  let testAudio: HTMLAudioElement | null = null;
+
+  async function testMusic() {
+    if (testAudio) { testAudio.pause(); testAudio = null; return; }
+    try {
+      const url = await GetCountdownMusicData();
+      if (!url) return;
+      testAudio = new Audio(url);
+      testAudio.volume = countdownVolume;
+      testAudio.onended = () => { testAudio = null; };
+      testAudio.play().catch(() => {});
+    } catch (e: any) {
+      alert('無法播放音樂：' + (e?.message || '檔案可能已被移動或刪除'));
+    }
   }
 
   async function handleSave() {
@@ -62,6 +91,8 @@
       auto_start: false,
       countdown_times: countdownTimes,
       period_times: periodTimes,
+      countdown_music: countdownMusic,
+      countdown_volume: countdownVolume,
     });
     saved = true;
     setTimeout(() => { saved = false; }, 2000);
@@ -132,6 +163,26 @@
               <button class="tag-remove" on:click={() => removeTime(t)}>×</button>
             </span>
           {/each}
+        </div>
+      {/if}
+    </div>
+
+    <div class="form-group">
+      <label>倒數音樂（MP3）</label>
+      <div class="inline-form">
+        <span class="music-path">{countdownMusic ? countdownMusic.split(/[/\\]/).pop() : '未選擇'}</span>
+        <button class="btn-primary btn-sm" on:click={pickMusic}>選擇檔案</button>
+        {#if countdownMusic}
+          <button class="btn-sm btn-danger" on:click={clearMusic}>清除</button>
+          <button class="btn-sm btn-test" on:click={testMusic}>{testAudio ? '⏹ 停止' : '▶ 試聽'}</button>
+        {/if}
+      </div>
+      {#if countdownMusic}
+        <div class="volume-row">
+          <span class="volume-label">🔈</span>
+          <input type="range" min="0" max="1" step="0.05" bind:value={countdownVolume} />
+          <span class="volume-label">🔊</span>
+          <span class="volume-value">{Math.round(countdownVolume * 100)}%</span>
         </div>
       {/if}
     </div>
@@ -228,5 +279,51 @@
   }
   .tag-remove:hover {
     color: var(--danger-hover);
+  }
+  .music-path {
+    font-size: 13px;
+    color: var(--text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+  }
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .btn-danger:hover {
+    background: var(--danger-hover);
+  }
+  .btn-test {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .btn-test:hover {
+    background: var(--border);
+  }
+  .volume-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .volume-row input[type="range"] {
+    flex: 1;
+    max-width: 200px;
+  }
+  .volume-label {
+    font-size: 14px;
+  }
+  .volume-value {
+    font-size: 12px;
+    color: var(--text-secondary);
+    min-width: 36px;
   }
 </style>

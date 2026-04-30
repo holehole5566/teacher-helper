@@ -1,4 +1,4 @@
-# Teacher Wails — 班級值日與午餐排程工具
+# Teacher Helper — 班級值日與午餐排程工具
 
 使用 [Wails](https://wails.io/)（Go + Svelte）開發的桌面應用程式，幫助老師自動排定學生的值日生輪值與午餐打菜分配。
 
@@ -17,7 +17,7 @@
 ## 專案結構
 
 ```
-teacher-wails/
+teacher-helper/
 ├── app.go                  # 主要後端邏輯（Wails 綁定）
 ├── main.go                 # 程式進入點
 ├── internal/

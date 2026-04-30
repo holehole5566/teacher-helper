@@ -26,6 +26,10 @@ export function ExportSchedule() {
   return window['go']['main']['App']['ExportSchedule']();
 }
 
+export function GetCountdownMusicData() {
+  return window['go']['main']['App']['GetCountdownMusicData']();
+}
+
 export function GetHolidays() {
   return window['go']['main']['App']['GetHolidays']();
 }
@@ -52,6 +56,10 @@ export function SaveSettings(arg1) {
 
 export function SaveTimetable(arg1) {
   return window['go']['main']['App']['SaveTimetable'](arg1);
+}
+
+export function SelectCountdownMusic() {
+  return window['go']['main']['App']['SelectCountdownMusic']();
 }
 
 export function SetFullscreen(arg1) {

@@ -14,6 +14,8 @@ export function DeleteStudent(arg1:number):Promise<void>;
 
 export function ExportSchedule():Promise<string>;
 
+export function GetCountdownMusicData():Promise<string>;
+
 export function GetHolidays():Promise<Array<string>>;
 
 export function GetSettings():Promise<models.Settings>;
@@ -27,6 +29,8 @@ export function GetTodayDuty():Promise<models.TodayDutyResult>;
 export function SaveSettings(arg1:models.Settings):Promise<void>;
 
 export function SaveTimetable(arg1:any):Promise<void>;
+
+export function SelectCountdownMusic():Promise<string>;
 
 export function SetFullscreen(arg1:boolean):Promise<void>;
 

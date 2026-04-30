@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -351,4 +352,47 @@ func (a *App) GetTimetable() [5][8]string {
 // SaveTimetable saves the 5×8 timetable.
 func (a *App) SaveTimetable(timetable [5][8]string) error {
 	return a.dh.SaveTimetable(timetable)
+}
+
+// SelectCountdownMusic opens a file dialog for the user to pick an MP3 file
+// and returns the selected file path.
+func (a *App) SelectCountdownMusic() (string, error) {
+	return runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "選擇倒數音樂",
+		Filters: []runtime.FileFilter{
+			{DisplayName: "MP3 音訊 (*.mp3)", Pattern: "*.mp3"},
+		},
+	})
+}
+
+// GetCountdownMusicData reads the configured MP3 file and returns a base64 data URL.
+func (a *App) GetCountdownMusicData() (string, error) {
+	settings, err := a.dh.GetSettings()
+	if err != nil || settings.CountdownMusic == "" {
+		return "", err
+	}
+	data, err := os.ReadFile(settings.CountdownMusic)
+	if err != nil {
+		return "", err
+	}
+	if !isMP3(data) {
+		return "", fmt.Errorf("檔案不是有效的 MP3 格式")
+	}
+	return "data:audio/mpeg;base64," + base64.StdEncoding.EncodeToString(data), nil
+}
+
+// isMP3 checks if data starts with valid MP3 magic bytes (ID3 tag or MPEG sync word).
+func isMP3(data []byte) bool {
+	if len(data) < 3 {
+		return false
+	}
+	// ID3v2 tag
+	if data[0] == 'I' && data[1] == 'D' && data[2] == '3' {
+		return true
+	}
+	// MPEG audio frame sync: 0xFF followed by 0xE0+ (11 sync bits set)
+	if len(data) >= 2 && data[0] == 0xFF && data[1]&0xE0 == 0xE0 {
+		return true
+	}
+	return false
 }

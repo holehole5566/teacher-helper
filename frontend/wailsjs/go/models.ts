@@ -60,6 +60,8 @@ export namespace models {
 	    meal_buckets: string[];
 	    countdown_times: string[];
 	    period_times: string[];
+	    countdown_music: string;
+	    countdown_volume: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new Settings(source);
@@ -76,6 +78,8 @@ export namespace models {
 	        this.meal_buckets = source["meal_buckets"];
 	        this.countdown_times = source["countdown_times"];
 	        this.period_times = source["period_times"];
+	        this.countdown_music = source["countdown_music"];
+	        this.countdown_volume = source["countdown_volume"];
 	    }
 	}
 	
