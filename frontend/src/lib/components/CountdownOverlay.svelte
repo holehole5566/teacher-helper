@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { GetCountdownMusicData, GetSettings } from '../../../wailsjs/go/main/App';
+  import { GetActiveCountdownMusicData, GetSettings } from '../../../wailsjs/go/main/App';
 
   export let seconds: number = 60;
+  export let triggerTime: string = '';
   export let onFinished: () => void = () => {};
 
   let remaining = seconds;
@@ -26,7 +27,10 @@
 
   onMount(async () => {
     try {
-      const [dataUrl, settings] = await Promise.all([GetCountdownMusicData(), GetSettings()]);
+      const [dataUrl, settings] = await Promise.all([
+        GetActiveCountdownMusicData(triggerTime),
+        GetSettings()
+      ]);
       if (dataUrl) {
         audio = new Audio(dataUrl);
         audio.volume = settings.countdown_volume > 0 ? settings.countdown_volume : 0.5;

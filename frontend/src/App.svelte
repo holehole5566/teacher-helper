@@ -15,6 +15,7 @@
   let homeRef: HomePage;
   let showCountdown = false;
   let showDisplay = false;
+  let countdownTriggerTime = '';
   let countdownTimes: string[] = [];
   let triggeredToday = new Set<string>();
   let checkInterval: ReturnType<typeof setInterval>;
@@ -46,13 +47,14 @@
       const key = `${todayKey}-${t}`;
       if (currentHHMM === triggerHHMM && !triggeredToday.has(key) && !showCountdown) {
         triggeredToday.add(key);
-        startCountdown();
+        startCountdown(t);
         break;
       }
     }
   }
 
-  async function startCountdown() {
+  async function startCountdown(triggerTime: string) {
+    countdownTriggerTime = triggerTime;
     showCountdown = true;
     await SetFullscreen(true);
   }
@@ -110,7 +112,7 @@
 </script>
 
 {#if showCountdown}
-  <CountdownOverlay seconds={60} onFinished={onCountdownFinished} />
+  <CountdownOverlay seconds={60} triggerTime={countdownTriggerTime} onFinished={onCountdownFinished} />
 {/if}
 
 {#if showDisplay}
