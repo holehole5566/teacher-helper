@@ -15,9 +15,9 @@
   let expandedPicker: number | null = null;
 
   async function load() {
-    records = await GetMissingHomework();
     allStudents = await GetStudents();
     const tt = await GetTimetable();
+    records = await GetMissingHomework();
     const subjectSet = new Set<string>();
     for (const day of tt) {
       for (const s of day) {
