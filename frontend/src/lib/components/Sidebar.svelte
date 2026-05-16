@@ -8,6 +8,7 @@
     { id: 'students', label: '學生管理', icon: '👥' },
     { id: 'settings', label: '設定', icon: '⚙️' },
     { id: 'holidays', label: '假期管理', icon: '📅' },
+    { id: 'missingHomework', label: '作業未交', icon: '📝' },
   ];
 </script>
 

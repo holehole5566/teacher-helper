@@ -9,6 +9,7 @@
   import SettingsPage from './lib/pages/SettingsPage.svelte';
   import HolidaysPage from './lib/pages/HolidaysPage.svelte';
   import TimetablePage from './lib/pages/TimetablePage.svelte';
+  import MissingHomeworkPage from './lib/pages/MissingHomeworkPage.svelte';
   import { ExportSchedule, GetSettings, SetFullscreen, ReportError, DebugLog } from '../wailsjs/go/main/App';
   import { EventsOn, EventsOff } from '../wailsjs/runtime/runtime';
 
@@ -106,6 +107,8 @@
       <HolidaysPage />
     {:else if currentPage === 'timetable'}
       <TimetablePage />
+    {:else if currentPage === 'missingHomework'}
+      <MissingHomeworkPage />
     {/if}
   </main>
 {/if}
