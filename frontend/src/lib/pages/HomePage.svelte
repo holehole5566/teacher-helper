@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import StudentPicker from '../components/StudentPicker.svelte';
-  import { GetTodayDuty, GetStudents, GetTimetable, GetSettings, ReportError } from '../../../wailsjs/go/main/App';
+  import { GetTodayDuty, GetStudents, GetTimetable, GetSettings, GetMissingHomework, ReportError } from '../../../wailsjs/go/main/App';
 
   const periodLabels = ['1', '2', '3', '4', '午休', '5', '6', '7'];
 
@@ -24,6 +24,7 @@
   let currentPeriod = -1;
   let periodTimes: string[] = [];
   let clockInterval: ReturnType<typeof setInterval>;
+  let missingHomework: { subject: string; students: number[]; note: string }[] = [];
 
   export async function refresh() {
     loading = true;
@@ -56,6 +57,7 @@
         }
       }
       updateCurrentPeriod();
+      missingHomework = await GetMissingHomework();
     } catch (e: any) {
       ReportError(`首頁資料載入失敗：${e?.message || e}`);
     }
@@ -204,6 +206,30 @@
             <p class="no-data">今日無抬餐</p>
           {/if}
         </div>
+
+        {#if missingHomework.length > 0}
+          <div class="card compact-card homework-accent">
+            <div class="section-header">
+              <span class="section-icon">📝</span>
+              <h3 class="section-title">作業未交</h3>
+            </div>
+            <div class="homework-list">
+              {#each missingHomework as hw}
+                <div class="homework-item">
+                  <span class="hw-subject">{hw.subject}</span>
+                  <div class="hw-chips">
+                    {#each hw.students as seat}
+                      <span class="hw-chip">{seat}號 {allStudents.find(s => s.seat_number === seat)?.name || ''}</span>
+                    {/each}
+                  </div>
+                  {#if hw.note}
+                    <span class="hw-note">{hw.note}</span>
+                  {/if}
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
       </div>
     </div>
   {/if}
@@ -397,5 +423,41 @@
   .no-data {
     color: var(--text-secondary);
     font-size: 13px;
+  }
+
+  .homework-accent {
+    border-left: 4px solid #ef4444;
+  }
+  .homework-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .homework-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .hw-subject {
+    font-size: 13px;
+    font-weight: 700;
+    color: #991b1b;
+  }
+  .hw-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .hw-chip {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .hw-note {
+    font-size: 11px;
+    color: var(--text-secondary);
   }
 </style>
