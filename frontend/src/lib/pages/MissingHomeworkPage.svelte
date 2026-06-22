@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { GetMissingHomework, SaveMissingHomework, GetTimetable, GetStudents } from '../../../wailsjs/go/main/App';
+  import { verifyAndRun } from '../stores/auth';
 
   interface HomeworkRecord {
     subject: string;
@@ -14,10 +15,15 @@
   let showAddDropdown = false;
   let expandedPicker: number | null = null;
 
+  let originalRecords = '';
+  let hasChanges = false;
+
   async function load() {
     allStudents = await GetStudents();
     const tt = await GetTimetable();
     records = await GetMissingHomework();
+    originalRecords = JSON.stringify(records);
+    hasChanges = false;
     const subjectSet = new Set<string>();
     for (const day of tt) {
       for (const s of day) {
@@ -27,19 +33,33 @@
     subjects = [...subjectSet].sort();
   }
 
-  async function save() {
-    await SaveMissingHomework(records);
+  function markChanged() {
+    hasChanges = JSON.stringify(records) !== originalRecords;
+  }
+
+  async function handleSave() {
+    try {
+      await verifyAndRun(async () => {
+        await SaveMissingHomework(records);
+      }, '儲存作業紀錄');
+      originalRecords = JSON.stringify(records);
+      hasChanges = false;
+    } catch (e: any) {
+      if (e.message !== '驗證失敗或已取消') {
+        alert('儲存失敗: ' + e.message);
+      }
+    }
   }
 
   function addRecord(subject: string) {
     records = [...records, { subject, students: [], note: '' }];
     showAddDropdown = false;
-    save();
+    markChanged();
   }
 
   function deleteRecord(index: number) {
     records = records.filter((_, i) => i !== index);
-    save();
+    markChanged();
   }
 
   function toggleStudent(recordIndex: number, seatNumber: number) {
@@ -50,19 +70,19 @@
       rec.students = [...rec.students, seatNumber].sort((a, b) => a - b);
     }
     records = records;
-    save();
+    markChanged();
   }
 
   function removeStudent(recordIndex: number, seatNumber: number) {
     records[recordIndex].students = records[recordIndex].students.filter(s => s !== seatNumber);
     records = records;
-    save();
+    markChanged();
   }
 
   function updateNote(recordIndex: number, value: string) {
     records[recordIndex].note = value;
     records = records;
-    save();
+    markChanged();
   }
 
   function getStudentName(seatNumber: number): string {
@@ -70,6 +90,7 @@
     return s ? s.name : `${seatNumber}號`;
   }
 
+  // svelte-ignore unused-export-let
   function togglePicker(index: number) {
     expandedPicker = expandedPicker === index ? null : index;
   }
@@ -80,20 +101,27 @@
 <div class="page">
   <div class="page-header">
     <h2 class="page-title">作業未交管理</h2>
-    <div class="add-wrapper">
-      <button class="btn-primary" on:click={() => (showAddDropdown = !showAddDropdown)}>
-        + 新增作業
-      </button>
-      {#if showAddDropdown}
-        <div class="dropdown">
-          {#each subjects as subj}
-            <button class="dropdown-item" on:click={() => addRecord(subj)}>{subj}</button>
-          {/each}
-          {#if subjects.length === 0}
-            <div class="dropdown-empty">請先設定課表</div>
-          {/if}
-        </div>
+    <div class="header-actions">
+      {#if hasChanges}
+        <button class="btn-success animate-fade" on:click={handleSave}>
+          💾 儲存變更
+        </button>
       {/if}
+      <div class="add-wrapper">
+        <button class="btn-primary" on:click={() => (showAddDropdown = !showAddDropdown)}>
+          + 新增作業
+        </button>
+        {#if showAddDropdown}
+          <div class="dropdown">
+            {#each subjects as subj}
+              <button class="dropdown-item" on:click={() => addRecord(subj)}>{subj}</button>
+            {/each}
+            {#if subjects.length === 0}
+              <div class="dropdown-empty">請先設定課表</div>
+            {/if}
+          </div>
+        {/if}
+      </div>
     </div>
   </div>
 
@@ -314,5 +342,30 @@
   }
   .student-checkbox input {
     cursor: pointer;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
+
+  .btn-success {
+    background: var(--success);
+    color: white;
+  }
+
+  .btn-success:hover {
+    background: #16a34a;
+  }
+
+  .animate-fade {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
   }
 </style>

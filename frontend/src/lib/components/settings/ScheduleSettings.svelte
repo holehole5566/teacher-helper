@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { GetSettings, SaveSettings } from '../../../../wailsjs/go/main/App';
+  import { verifyAndRun } from '../../stores/auth';
 
   let countdownTimes: string[] = [];
   let periodTimes: string[] = ['','','','','','','',''];
@@ -29,14 +30,22 @@
   }
 
   async function handleSave() {
-    const current = await GetSettings();
-    await SaveSettings({
-      ...current,
-      countdown_times: countdownTimes,
-      period_times: periodTimes,
-    });
-    saved = true;
-    setTimeout(() => { saved = false; }, 2000);
+    try {
+      const current = await GetSettings();
+      await verifyAndRun(async () => {
+        await SaveSettings({
+          ...current,
+          countdown_times: countdownTimes,
+          period_times: periodTimes,
+        });
+      }, '儲存課程時間設定');
+      saved = true;
+      setTimeout(() => { saved = false; }, 2000);
+    } catch (e: any) {
+      if (e.message !== '驗證失敗或已取消') {
+        alert('儲存失敗: ' + e.message);
+      }
+    }
   }
 
   onMount(loadSettings);

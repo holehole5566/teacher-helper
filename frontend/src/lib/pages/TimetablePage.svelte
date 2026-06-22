@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { GetTimetable, SaveTimetable } from '../../../wailsjs/go/main/App';
+  import { verifyAndRun } from '../stores/auth';
 
   const days = ['一', '二', '三', '四', '五'];
   const periods = 8;
@@ -23,9 +24,17 @@
   }
 
   async function handleSave() {
-    await SaveTimetable(timetable);
-    saved = true;
-    setTimeout(() => { saved = false; }, 2000);
+    try {
+      await verifyAndRun(async () => {
+        await SaveTimetable(timetable);
+      }, '儲存課表');
+      saved = true;
+      setTimeout(() => { saved = false; }, 2000);
+    } catch (e: any) {
+      if (e.message !== '驗證失敗或已取消') {
+        alert('儲存失敗: ' + e.message);
+      }
+    }
   }
 
   onMount(load);

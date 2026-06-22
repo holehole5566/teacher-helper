@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { GetSettings, SaveSettings, SelectCountdownMusics, GetCountdownMusicData, ValidateRandomPool } from '../../../../wailsjs/go/main/App';
+  import { verifyAndRun } from '../../stores/auth';
 
   type MusicTrack = { path: string; in_random: boolean };
   type CountdownTimeMusic = { time: string; mode: string; index: number };
@@ -129,16 +130,24 @@
       }
     }
 
-    const current = await GetSettings();
-    await SaveSettings({
-      ...current,
-      countdown_volume: countdownVolume,
-      countdown_musics: countdownMusics,
-      countdown_time_music_map: countdownTimeMusicMap,
-      audio_output_device: audioOutputDevice,
-    });
-    saved = true;
-    setTimeout(() => { saved = false; }, 2000);
+    try {
+      const current = await GetSettings();
+      await verifyAndRun(async () => {
+        await SaveSettings({
+          ...current,
+          countdown_volume: countdownVolume,
+          countdown_musics: countdownMusics,
+          countdown_time_music_map: countdownTimeMusicMap,
+          audio_output_device: audioOutputDevice,
+        });
+      }, '儲存音樂設定');
+      saved = true;
+      setTimeout(() => { saved = false; }, 2000);
+    } catch (e: any) {
+      if (e.message !== '驗證失敗或已取消') {
+        alert('儲存失敗: ' + e.message);
+      }
+    }
   }
 
   onMount(loadSettings);

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { GetSettings, SaveSettings, GetCurrentVersion, CheckForUpdate, DoUpdate } from '../../../../wailsjs/go/main/App';
+  import { verifyAndRun } from '../../stores/auth';
 
   let discordWebhook = '';
   let saved = false;
@@ -17,13 +18,21 @@
   }
 
   async function handleSave() {
-    const current = await GetSettings();
-    await SaveSettings({
-      ...current,
-      discord_webhook: discordWebhook,
-    });
-    saved = true;
-    setTimeout(() => { saved = false; }, 2000);
+    try {
+      const current = await GetSettings();
+      await verifyAndRun(async () => {
+        await SaveSettings({
+          ...current,
+          discord_webhook: discordWebhook,
+        });
+      }, '儲存系統設定');
+      saved = true;
+      setTimeout(() => { saved = false; }, 2000);
+    } catch (e: any) {
+      if (e.message !== '驗證失敗或已取消') {
+        alert('儲存失敗: ' + e.message);
+      }
+    }
   }
 
   async function checkUpdate() {

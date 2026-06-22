@@ -4,6 +4,7 @@
   import Sidebar from './lib/components/Sidebar.svelte';
   import CountdownOverlay from './lib/components/CountdownOverlay.svelte';
   import DisplayMode from './lib/components/DisplayMode.svelte';
+  import PasswordModal from './lib/components/PasswordModal.svelte';
   import HomePage from './lib/pages/HomePage.svelte';
   import StudentsPage from './lib/pages/StudentsPage.svelte';
   import SettingsPage from './lib/pages/SettingsPage.svelte';
@@ -12,6 +13,7 @@
   import MissingHomeworkPage from './lib/pages/MissingHomeworkPage.svelte';
   import { ExportSchedule, GetSettings, SetFullscreen, ReportError, DebugLog } from '../wailsjs/go/main/App';
   import { EventsOn, EventsOff } from '../wailsjs/runtime/runtime';
+  import { checkPasswordStatus } from './lib/stores/auth';
 
   let currentPage = 'home';
   let homeRef: HomePage;
@@ -77,6 +79,7 @@
   }
 
   onMount(() => {
+    checkPasswordStatus();
     EventsOn('countdown-trigger', onCountdownTrigger);
     window.addEventListener('keydown', handleKeydown);
   });
@@ -86,6 +89,8 @@
     window.removeEventListener('keydown', handleKeydown);
   });
 </script>
+
+<PasswordModal />
 
 {#if showCountdown}
   <CountdownOverlay seconds={60} triggerTime={countdownTriggerTime} onFinished={onCountdownFinished} />

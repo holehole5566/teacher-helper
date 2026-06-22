@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { GetStudents, AddStudent, DeleteStudent, ToggleDuty, ToggleLunch, ReportError } from '../../../wailsjs/go/main/App';
+  import { verifyAndRun } from '../stores/auth';
 
   let students: any[] = [];
   let newSeat = '';
@@ -20,29 +21,57 @@
       return;
     }
     try {
-      await AddStudent(seat, name);
+      await verifyAndRun(async () => {
+        await AddStudent(seat, name);
+      }, '新增學生');
       newSeat = '';
       newName = '';
       await loadStudents();
     } catch (e: any) {
-      errorMsg = e?.message || String(e);
-      ReportError(`新增學生失敗：${e?.message || e}`);
+      if (e.message !== '驗證失敗或已取消') {
+        errorMsg = e?.message || String(e);
+        ReportError(`新增學生失敗：${e?.message || e}`);
+      }
     }
   }
 
   async function handleDelete(seatNumber: number) {
-    await DeleteStudent(seatNumber);
-    await loadStudents();
+    try {
+      await verifyAndRun(async () => {
+        await DeleteStudent(seatNumber);
+      }, '刪除學生');
+      await loadStudents();
+    } catch (e: any) {
+      if (e.message !== '驗證失敗或已取消') {
+        alert('刪除學生失敗: ' + e.message);
+      }
+    }
   }
 
   async function handleToggleDuty(seatNumber: number) {
-    await ToggleDuty(seatNumber);
-    await loadStudents();
+    try {
+      await verifyAndRun(async () => {
+        await ToggleDuty(seatNumber);
+      }, '修改值日狀態');
+      await loadStudents();
+    } catch (e: any) {
+      if (e.message !== '驗證失敗或已取消') {
+        alert('修改值日狀態失敗: ' + e.message);
+      }
+    }
   }
 
   async function handleToggleLunch(seatNumber: number) {
-    await ToggleLunch(seatNumber);
-    await loadStudents();
+    try {
+      await verifyAndRun(async () => {
+        await ToggleLunch(seatNumber);
+      }, '修改抬餐狀態');
+      await loadStudents();
+    } catch (e: any) {
+      if (e.message !== '驗證失敗或已取消') {
+        alert('修改抬餐狀態失敗: ' + e.message);
+      }
+    }
   }
 
   onMount(loadStudents);

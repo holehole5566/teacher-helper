@@ -41,6 +41,7 @@ type Settings struct {
 
 // Config is the top-level JSON structure persisted to config.json.
 type Config struct {
+	Password        string            `json:"password"`
 	Students        []Student         `json:"students"`
 	Settings        Settings          `json:"settings"`
 	Holidays        []string          `json:"holidays"`

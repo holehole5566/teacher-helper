@@ -39,6 +39,8 @@ export function GetTimetable():Promise<any>;
 
 export function GetTodayDuty():Promise<models.TodayDutyResult>;
 
+export function HasPassword():Promise<boolean>;
+
 export function ReportError(arg1:string):Promise<void>;
 
 export function SaveMissingHomework(arg1:Array<models.MissingHomework>):Promise<void>;
@@ -51,6 +53,8 @@ export function SelectCountdownMusics():Promise<Array<string>>;
 
 export function SetFullscreen(arg1:boolean):Promise<void>;
 
+export function SetPassword(arg1:string):Promise<void>;
+
 export function SyncHolidays():Promise<number>;
 
 export function ToggleDuty(arg1:number):Promise<void>;
@@ -58,3 +62,5 @@ export function ToggleDuty(arg1:number):Promise<void>;
 export function ToggleLunch(arg1:number):Promise<void>;
 
 export function ValidateRandomPool():Promise<boolean>;
+
+export function VerifyPassword(arg1:string):Promise<boolean>;

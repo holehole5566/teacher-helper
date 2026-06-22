@@ -74,6 +74,10 @@ export function GetTodayDuty() {
   return window['go']['main']['App']['GetTodayDuty']();
 }
 
+export function HasPassword() {
+  return window['go']['main']['App']['HasPassword']();
+}
+
 export function ReportError(arg1) {
   return window['go']['main']['App']['ReportError'](arg1);
 }
@@ -98,6 +102,10 @@ export function SetFullscreen(arg1) {
   return window['go']['main']['App']['SetFullscreen'](arg1);
 }
 
+export function SetPassword(arg1) {
+  return window['go']['main']['App']['SetPassword'](arg1);
+}
+
 export function SyncHolidays() {
   return window['go']['main']['App']['SyncHolidays']();
 }
@@ -112,4 +120,8 @@ export function ToggleLunch(arg1) {
 
 export function ValidateRandomPool() {
   return window['go']['main']['App']['ValidateRandomPool']();
+}
+
+export function VerifyPassword(arg1) {
+  return window['go']['main']['App']['VerifyPassword'](arg1);
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { GetHolidays, AddHoliday, DeleteHoliday, ClearHolidays, SyncHolidays, ReportError } from '../../../wailsjs/go/main/App';
+  import { verifyAndRun } from '../stores/auth';
 
   let holidays: string[] = [];
   let newDate = '';
@@ -13,30 +14,58 @@
 
   async function handleAdd() {
     if (!newDate) return;
-    await AddHoliday(newDate);
-    newDate = '';
-    await loadHolidays();
+    try {
+      await verifyAndRun(async () => {
+        await AddHoliday(newDate);
+      }, '新增假期');
+      newDate = '';
+      await loadHolidays();
+    } catch (e: any) {
+      if (e.message !== '驗證失敗或已取消') {
+        alert('新增失敗: ' + e.message);
+      }
+    }
   }
 
   async function handleDelete(dateStr: string) {
-    await DeleteHoliday(dateStr);
-    await loadHolidays();
+    try {
+      await verifyAndRun(async () => {
+        await DeleteHoliday(dateStr);
+      }, '刪除假期');
+      await loadHolidays();
+    } catch (e: any) {
+      if (e.message !== '驗證失敗或已取消') {
+        alert('刪除失敗: ' + e.message);
+      }
+    }
   }
 
   async function handleClear() {
-    await ClearHolidays();
-    await loadHolidays();
+    try {
+      await verifyAndRun(async () => {
+        await ClearHolidays();
+      }, '清空假期');
+      await loadHolidays();
+    } catch (e: any) {
+      if (e.message !== '驗證失敗或已取消') {
+        alert('清空失敗: ' + e.message);
+      }
+    }
   }
 
   async function handleSync() {
     syncing = true;
     try {
-      const added = await SyncHolidays();
-      await loadHolidays();
-      alert(`同步完成，新增 ${added} 筆假期`);
+      await verifyAndRun(async () => {
+        const added = await SyncHolidays();
+        await loadHolidays();
+        alert(`同步完成，新增 ${added} 筆假期`);
+      }, '同步政府假日');
     } catch (e: any) {
-      ReportError(`假期同步失敗：${e?.message || e}`);
-      alert('同步失敗: ' + e);
+      if (e.message !== '驗證失敗或已取消') {
+        ReportError(`假期同步失敗：${e?.message || e}`);
+        alert('同步失敗: ' + e);
+      }
     } finally {
       syncing = false;
     }

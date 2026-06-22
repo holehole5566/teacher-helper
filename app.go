@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/csv"
 	"encoding/json"
@@ -26,14 +27,16 @@ import (
 
 // App is the main application struct bound to the frontend.
 type App struct {
-	ctx       context.Context
-	dh        *services.DataHandler
-	sm        *services.StudentManager
-	dc        *services.DutyCalculator
-	se        *services.ScheduleExporter
-	logFile   *os.File
-	logger    *log.Logger
-	logOnce   sync.Once
+	ctx             context.Context
+	dh              *services.DataHandler
+	sm              *services.StudentManager
+	dc              *services.DutyCalculator
+	se              *services.ScheduleExporter
+	logFile         *os.File
+	logger          *log.Logger
+	logOnce         sync.Once
+	authMu          sync.Mutex
+	authorizedWrite bool
 }
 
 func (a *App) initLogger() {
@@ -174,21 +177,33 @@ func (a *App) GetStudents() []models.Student {
 
 // AddStudent adds a new student with the given seat number and name.
 func (a *App) AddStudent(seatNumber int, name string) error {
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
 	return a.sm.AddStudent(seatNumber, name)
 }
 
 // DeleteStudent removes a student by seat number.
 func (a *App) DeleteStudent(seatNumber int) error {
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
 	return a.sm.DeleteStudent(seatNumber)
 }
 
 // ToggleDuty toggles the duty participation flag for a student.
 func (a *App) ToggleDuty(seatNumber int) error {
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
 	return a.sm.ToggleDuty(seatNumber)
 }
 
 // ToggleLunch toggles the lunch participation flag for a student.
 func (a *App) ToggleLunch(seatNumber int) error {
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
 	return a.sm.ToggleLunch(seatNumber)
 }
 
@@ -203,6 +218,9 @@ func (a *App) GetSettings() models.Settings {
 
 // SaveSettings saves the given settings.
 func (a *App) SaveSettings(settings models.Settings) error {
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
 	return a.dh.SaveSettings(settings)
 }
 
@@ -217,6 +235,9 @@ func (a *App) GetHolidays() []string {
 
 // AddHoliday adds a date string to the holiday list.
 func (a *App) AddHoliday(dateStr string) error {
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
 	holidays, err := a.dh.GetHolidays()
 	if err != nil {
 		return err
@@ -232,6 +253,9 @@ func (a *App) AddHoliday(dateStr string) error {
 
 // DeleteHoliday removes a date from the holiday list.
 func (a *App) DeleteHoliday(dateStr string) error {
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
 	holidays, err := a.dh.GetHolidays()
 	if err != nil {
 		return err
@@ -247,12 +271,18 @@ func (a *App) DeleteHoliday(dateStr string) error {
 
 // ClearHolidays removes all holidays.
 func (a *App) ClearHolidays() error {
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
 	return a.dh.SaveHolidays([]string{})
 }
 
 // SyncHolidays fetches the current year's government holiday calendar from
 // data.gov.tw and merges non-weekend holidays into the local holiday list.
 func (a *App) SyncHolidays() (int, error) {
+	if err := a.checkWriteAuth(); err != nil {
+		return 0, err
+	}
 	year := time.Now().Year()
 	rocYear := year - 1911
 
@@ -440,6 +470,9 @@ func (a *App) GetTimetable() [5][8]string {
 
 // SaveTimetable saves the 5×8 timetable.
 func (a *App) SaveTimetable(timetable [5][8]string) error {
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
 	return a.dh.SaveTimetable(timetable)
 }
 
@@ -454,6 +487,9 @@ func (a *App) GetMissingHomework() []models.MissingHomework {
 
 // SaveMissingHomework saves the missing homework records.
 func (a *App) SaveMissingHomework(records []models.MissingHomework) error {
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
 	return a.dh.SaveMissingHomework(records)
 }
 
@@ -702,5 +738,58 @@ func (a *App) DoUpdate() error {
 	cmd.Start()
 	os.Exit(0)
 
+	return nil
+}
+
+// HasPassword returns true if an admin password is set.
+func (a *App) HasPassword() bool {
+	config, err := a.dh.LoadConfig()
+	if err != nil {
+		return false
+	}
+	return config.Password != ""
+}
+
+// SetPassword sets and hashes the admin password.
+func (a *App) SetPassword(password string) error {
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
+	config, err := a.dh.LoadConfig()
+	if err != nil {
+		return err
+	}
+	hash := sha256.Sum256([]byte(password))
+	config.Password = fmt.Sprintf("%x", hash)
+	return a.dh.SaveConfig(config)
+}
+
+// VerifyPassword verifies the given password against the saved one.
+func (a *App) VerifyPassword(password string) bool {
+	config, err := a.dh.LoadConfig()
+	if err != nil {
+		return false
+	}
+	hash := sha256.Sum256([]byte(password))
+	hashStr := fmt.Sprintf("%x", hash)
+	if config.Password == hashStr {
+		a.authMu.Lock()
+		a.authorizedWrite = true
+		a.authMu.Unlock()
+		return true
+	}
+	return false
+}
+
+func (a *App) checkWriteAuth() error {
+	if a.HasPassword() {
+		a.authMu.Lock()
+		defer a.authMu.Unlock()
+		if !a.authorizedWrite {
+			return fmt.Errorf("未經授權的操作，請先輸入管理員密碼")
+		}
+		// Reset authority immediately to ensure single-use
+		a.authorizedWrite = false
+	}
 	return nil
 }
