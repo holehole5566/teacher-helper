@@ -9,6 +9,7 @@
     submitPassword,
     cancelPrompt
   } from '../stores/auth';
+  import { X, EyeOff, Eye, TriangleAlert } from 'lucide-svelte';
 
   let passwordInput = '';
   let showPassword = false;
@@ -41,7 +42,7 @@
       <div class="modal-header">
         <h3>{$promptTitle}</h3>
         {#if $hasPassword}
-          <button class="btn-icon close-btn" on:click={handleCancel}>✕</button>
+          <button class="btn-icon close-btn" on:click={handleCancel}><X size={18} /></button>
         {/if}
       </div>
 
@@ -72,13 +73,17 @@
             on:click={() => showPassword = !showPassword}
             tabindex="-1"
           >
-            {showPassword ? '🙈' : '👁️'}
+            {#if showPassword}
+              <EyeOff size={18} />
+            {:else}
+              <Eye size={18} />
+            {/if}
           </button>
         </div>
 
         {#if $errorMsg}
           <div class="error-banner">
-            <span class="error-icon">⚠️</span>
+            <span class="error-icon"><TriangleAlert size={16} /></span>
             <span class="error-text">{$errorMsg}</span>
           </div>
         {/if}
@@ -209,13 +214,13 @@
     background: transparent;
     border: none;
     padding: 8px;
-    font-size: 16px;
     cursor: pointer;
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background 0.15s;
+    color: var(--text-secondary);
   }
 
   .toggle-visible:hover {
@@ -236,7 +241,9 @@
   }
 
   .error-icon {
-    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--danger);
   }
 
   .remember-label {

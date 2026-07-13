@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { GetTodayDuty, GetTimetable, GetSettings, GetMissingHomework, GetStudents } from '../../../wailsjs/go/main/App';
+  import { BookOpen, Brush, UtensilsCrossed, FileText } from 'lucide-svelte';
 
   const dayLabels = ['日', '一', '二', '三', '四', '五', '六'];
   const periodLabels = ['1', '2', '3', '4', '午休', '5', '6', '7'];
@@ -90,7 +91,7 @@
     <!-- Left: timetable (main focus) -->
     <div class="panel-left">
       <div class="section-card timetable-card">
-        <h2>📚 今日課表</h2>
+        <h2><BookOpen size={20} /> 今日課表</h2>
         {#if todayClasses.length > 0}
           <div class="class-list">
             {#each todayClasses as cls}
@@ -112,7 +113,7 @@
     <!-- Right: duty + lunch -->
     <div class="panel-right">
       <div class="section-card duty-card">
-        <h2>🧹 今日值日生</h2>
+        <h2><Brush size={20} /> 今日值日生</h2>
         <div class="duty-list">
           {#each dutyStudents as s}
             <div class="duty-chip">
@@ -124,7 +125,7 @@
       </div>
 
       <div class="section-card lunch-card">
-        <h2>🍱 抬餐同學</h2>
+        <h2><UtensilsCrossed size={20} /> 抬餐同學</h2>
         <div class="lunch-list">
           {#each lunchAssignments as a}
             <div class="lunch-row">
@@ -137,7 +138,7 @@
 
       {#if missingHomework.length > 0}
         <div class="section-card homework-card">
-          <h2>📝 作業未交</h2>
+          <h2><FileText size={20} /> 作業未交</h2>
           <div class="homework-list">
             {#each missingHomework as hw}
               <div class="homework-item">
@@ -225,6 +226,9 @@
     font-weight: 600;
     margin-bottom: 16px;
     opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   .timetable-card {
     flex: 1;

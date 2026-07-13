@@ -1,14 +1,20 @@
 <script lang="ts">
+  import { ClipboardList, BookOpen, Users, Settings, Calendar, FileText, Monitor, ChartBar } from 'lucide-svelte';
+
   export let currentPage: string;
   export let onNavigate: (page: string) => void;
 
+  const iconMap: Record<string, any> = {
+    ClipboardList, BookOpen, Users, Settings, Calendar, FileText, Monitor, ChartBar
+  };
+
   const navItems = [
-    { id: 'home', label: '今日值日', icon: '📋' },
-    { id: 'timetable', label: '課表設定', icon: '📚' },
-    { id: 'students', label: '學生管理', icon: '👥' },
-    { id: 'settings', label: '設定', icon: '⚙️' },
-    { id: 'holidays', label: '假期管理', icon: '📅' },
-    { id: 'missingHomework', label: '作業未交', icon: '📝' },
+    { id: 'home', label: '今日值日', icon: 'ClipboardList' },
+    { id: 'timetable', label: '課表設定', icon: 'BookOpen' },
+    { id: 'students', label: '學生管理', icon: 'Users' },
+    { id: 'settings', label: '設定', icon: 'Settings' },
+    { id: 'holidays', label: '假期管理', icon: 'Calendar' },
+    { id: 'missingHomework', label: '作業未交', icon: 'FileText' },
   ];
 </script>
 
@@ -24,18 +30,18 @@
         class:active={currentPage === item.id}
         on:click={() => onNavigate(item.id)}
       >
-        <span class="nav-icon">{item.icon}</span>
+        <span class="nav-icon"><svelte:component this={iconMap[item.icon]} size={18} /></span>
         <span class="nav-label">{item.label}</span>
       </button>
     {/each}
   </nav>
   <div class="sidebar-footer">
     <button class="nav-item display-btn" on:click={() => onNavigate('display')}>
-      <span class="nav-icon">🖥️</span>
+      <span class="nav-icon"><Monitor size={18} /></span>
       <span class="nav-label">展示模式</span>
     </button>
     <button class="nav-item export-btn" on:click={() => onNavigate('export')}>
-      <span class="nav-icon">📊</span>
+      <span class="nav-icon"><ChartBar size={18} /></span>
       <span class="nav-label">匯出排程</span>
     </button>
   </div>
@@ -95,9 +101,11 @@
     color: var(--text-sidebar-active);
   }
   .nav-icon {
-    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 20px;
-    text-align: center;
+    flex-shrink: 0;
   }
   .sidebar-footer {
     padding: 8px;

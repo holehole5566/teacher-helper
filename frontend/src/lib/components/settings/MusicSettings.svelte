@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { GetSettings, SaveSettings, SelectCountdownMusics, GetCountdownMusicData, ValidateRandomPool } from '../../../../wailsjs/go/main/App';
   import { verifyAndRun } from '../../stores/auth';
+  import { Square, Play, X, Volume1, Volume2 } from 'lucide-svelte';
 
   type MusicTrack = { path: string; in_random: boolean };
   type CountdownTimeMusic = { time: string; mode: string; index: number };
@@ -170,16 +171,20 @@
               隨機
             </label>
             <button class="btn-sm btn-test" on:click={() => previewTrack(i)}>
-              {testAudios[i] ? '⏹' : '▶'}
+              {#if testAudios[i]}
+                <Square size={12} />
+              {:else}
+                <Play size={12} />
+              {/if}
             </button>
-            <button class="btn-sm btn-danger" on:click={() => removeTrack(i)}>✕</button>
+            <button class="btn-sm btn-danger" on:click={() => removeTrack(i)}><X size={12} /></button>
           </div>
         {/each}
       </div>
       <div class="volume-row">
-        <span class="vol-icon">🔈</span>
+        <span class="vol-icon"><Volume1 size={16} /></span>
         <input type="range" min="0" max="1" step="0.05" bind:value={countdownVolume} />
-        <span class="vol-icon">🔊</span>
+        <span class="vol-icon"><Volume2 size={16} /></span>
         <span class="vol-value">{Math.round(countdownVolume * 100)}%</span>
       </div>
     {:else}
@@ -305,7 +310,9 @@
     border: 1px solid var(--border);
     border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
   .btn-test:hover {
     background: var(--border);
@@ -321,7 +328,9 @@
     max-width: 200px;
   }
   .vol-icon {
-    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-secondary);
   }
   .vol-value {
     font-size: 12px;

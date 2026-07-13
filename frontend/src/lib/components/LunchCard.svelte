@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { UtensilsCrossed, Pencil } from 'lucide-svelte';
   export let assignments: Array<{
     student: { seat_number: number; name: string };
     bucket: string;
@@ -9,7 +10,7 @@
 
 <div class="card lunch-card">
   <div class="card-header">
-    <span class="card-icon">🍱</span>
+    <span class="card-icon"><UtensilsCrossed size={20} /></span>
     <h3 class="card-title">抬餐負責人</h3>
     {#if modified}<span class="badge badge-muted">已手動調整</span>{/if}
   </div>
@@ -21,7 +22,7 @@
             <div class="student-info">
               <span class="seat">{a.student.seat_number}號</span>
               <span class="name">{a.student.name}</span>
-              <span class="edit-hint">✎</span>
+              <span class="edit-hint"><Pencil size={14} /></span>
             </div>
             <span class="bucket-tag">{a.bucket}</span>
           </button>
@@ -44,7 +45,9 @@
     margin-bottom: 16px;
   }
   .card-icon {
-    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-secondary);
   }
   .card-title {
     font-size: 15px;

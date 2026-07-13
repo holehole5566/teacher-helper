@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { GetMissingHomework, SaveMissingHomework, GetTimetable, GetStudents } from '../../../wailsjs/go/main/App';
   import { verifyAndRun } from '../stores/auth';
+  import { Save, CircleCheck, Trash2 } from 'lucide-svelte';
 
   interface HomeworkRecord {
     subject: string;
@@ -104,7 +105,7 @@
     <div class="header-actions">
       {#if hasChanges}
         <button class="btn-success animate-fade" on:click={handleSave}>
-          💾 儲存變更
+          <Save size={14} /> 儲存變更
         </button>
       {/if}
       <div class="add-wrapper">
@@ -127,7 +128,7 @@
 
   {#if records.length === 0}
     <div class="empty-state">
-      <span class="empty-icon">✅</span>
+      <span class="empty-icon"><CircleCheck size={48} /></span>
       <p>目前沒有未交作業紀錄</p>
     </div>
   {:else}
@@ -136,7 +137,7 @@
         <div class="record-card">
           <div class="record-header">
             <h3 class="record-subject">{record.subject}</h3>
-            <button class="btn-delete" on:click={() => deleteRecord(i)} title="刪除此紀錄">🗑️</button>
+            <button class="btn-delete" on:click={() => deleteRecord(i)} title="刪除此紀錄"><Trash2 size={16} /></button>
           </div>
 
           <div class="note-row">

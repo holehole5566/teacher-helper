@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import StudentPicker from '../components/StudentPicker.svelte';
   import { GetTodayDuty, GetStudents, GetTimetable, GetSettings, GetMissingHomework, ReportError } from '../../../wailsjs/go/main/App';
+  import { RotateCcw, PartyPopper, BookOpen, Brush, UtensilsCrossed, FileText } from 'lucide-svelte';
 
   const periodLabels = ['1', '2', '3', '4', '午休', '5', '6', '7'];
 
@@ -126,7 +127,7 @@
     <h2 class="page-title">今日總覽</h2>
     <span class="date-display">{displayDate}</span>
     {#if dutyModified || lunchModified}
-      <button class="btn-outline btn-sm" on:click={resetAll}>↺ 重設排程</button>
+      <button class="btn-outline btn-sm" on:click={resetAll}><RotateCcw size={14} /> 重設排程</button>
     {/if}
   </div>
 
@@ -135,7 +136,7 @@
   {:else if !isWorkday}
     <div class="card">
       <div class="rest-message">
-        <span class="rest-icon">🎉</span>
+        <span class="rest-icon"><PartyPopper size={48} /></span>
         <h3>今日休息</h3>
         <p>今天是週末或假期，無需值日</p>
       </div>
@@ -145,7 +146,7 @@
       <!-- Left: timetable -->
       <div class="card timetable-section">
         <div class="section-header">
-          <span class="section-icon">📚</span>
+          <span class="section-icon"><BookOpen size={18} /></span>
           <h3 class="section-title">今日課表</h3>
         </div>
         {#if todayClasses.length > 0}
@@ -169,7 +170,7 @@
       <div class="right-panel">
         <div class="card compact-card duty-accent">
           <div class="section-header">
-            <span class="section-icon">🧹</span>
+            <span class="section-icon"><Brush size={18} /></span>
             <h3 class="section-title">值日生</h3>
             {#if dutyModified}<span class="badge badge-muted">已調整</span>{/if}
           </div>
@@ -189,7 +190,7 @@
 
         <div class="card compact-card lunch-accent">
           <div class="section-header">
-            <span class="section-icon">🍱</span>
+            <span class="section-icon"><UtensilsCrossed size={18} /></span>
             <h3 class="section-title">抬餐</h3>
             {#if lunchModified}<span class="badge badge-muted">已調整</span>{/if}
           </div>
@@ -210,7 +211,7 @@
         {#if missingHomework.length > 0}
           <div class="card compact-card homework-accent">
             <div class="section-header">
-              <span class="section-icon">📝</span>
+              <span class="section-icon"><FileText size={18} /></span>
               <h3 class="section-title">作業未交</h3>
             </div>
             <div class="homework-list">
@@ -251,9 +252,11 @@
     padding: 40px 20px;
   }
   .rest-icon {
-    font-size: 48px;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 12px;
+    color: #f59e0b;
   }
   .rest-message h3 {
     font-size: 18px;
@@ -283,7 +286,9 @@
     margin-bottom: 12px;
   }
   .section-icon {
-    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-secondary);
   }
   .section-title {
     font-size: 15px;

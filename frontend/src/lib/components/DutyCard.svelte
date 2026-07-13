@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Brush, Pencil } from 'lucide-svelte';
   export let students: Array<{ seat_number: number; name: string }>;
   export let onReplace: (index: number) => void = () => {};
   export let modified = false;
@@ -6,7 +7,7 @@
 
 <div class="card duty-card">
   <div class="card-header">
-    <span class="card-icon">🧹</span>
+    <span class="card-icon"><Brush size={20} /></span>
     <h3 class="card-title">今日值日生</h3>
     {#if modified}<span class="badge badge-muted">已手動調整</span>{/if}
   </div>
@@ -17,7 +18,7 @@
           <button class="student-chip" title="點擊替換" on:click={() => onReplace(i)}>
             <span class="seat">{student.seat_number}號</span>
             <span class="name">{student.name}</span>
-            <span class="edit-hint">✎</span>
+            <span class="edit-hint"><Pencil size={14} /></span>
           </button>
         {/each}
       </div>
@@ -38,7 +39,9 @@
     margin-bottom: 16px;
   }
   .card-icon {
-    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-secondary);
   }
   .card-title {
     font-size: 15px;

@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { GetHolidays, AddHoliday, DeleteHoliday, ClearHolidays, SyncHolidays, ReportError } from '../../../wailsjs/go/main/App';
   import { verifyAndRun } from '../stores/auth';
+  import { RefreshCw, X } from 'lucide-svelte';
 
   let holidays: string[] = [];
   let newDate = '';
@@ -82,7 +83,11 @@
       <input type="date" bind:value={newDate} />
       <button class="btn-primary" on:click={handleAdd}>新增假期</button>
       <button class="btn-primary" on:click={handleSync} disabled={syncing}>
-        {syncing ? '同步中...' : '🔄 同步政府假日'}
+        {#if syncing}
+          同步中...
+        {:else}
+          <RefreshCw size={14} /> 同步政府假日
+        {/if}
       </button>
       {#if holidays.length > 0}
         <button class="btn-danger" on:click={handleClear}>清空全部</button>
@@ -96,7 +101,7 @@
         {#each holidays as h}
           <div class="holiday-item">
             <span class="holiday-date">{h}</span>
-            <button class="btn-icon" on:click={() => handleDelete(h)}>✕</button>
+            <button class="btn-icon" on:click={() => handleDelete(h)}><X size={14} /></button>
           </div>
         {/each}
       </div>

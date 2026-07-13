@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { X } from 'lucide-svelte';
   export let students: Array<{ seat_number: number; name: string }> = [];
   export let onPick: (student: { seat_number: number; name: string }) => void = () => {};
   export let onClose: () => void = () => {};
@@ -10,7 +11,7 @@
   <div class="picker">
     <div class="picker-header">
       <h3>選擇學生</h3>
-      <button class="btn-icon" on:click={onClose}>✕</button>
+      <button class="btn-icon" on:click={onClose}><X size={18} /></button>
     </div>
     <div class="picker-list">
       {#each students as s}

@@ -3,14 +3,19 @@
   import ScheduleSettings from '../components/settings/ScheduleSettings.svelte';
   import MusicSettings from '../components/settings/MusicSettings.svelte';
   import SystemSettings from '../components/settings/SystemSettings.svelte';
+  import { ClipboardList, Clock, Music, Wrench } from 'lucide-svelte';
 
   let activeTab = 'duty';
 
+  const iconMap: Record<string, any> = {
+    ClipboardList, Clock, Music, Wrench
+  };
+
   const tabs = [
-    { id: 'duty', label: '值日/抬餐', icon: '📋' },
-    { id: 'schedule', label: '課程時間', icon: '⏰' },
-    { id: 'music', label: '倒數音樂', icon: '🎵' },
-    { id: 'system', label: '系統', icon: '🔧' },
+    { id: 'duty', label: '值日/抬餐', icon: 'ClipboardList' },
+    { id: 'schedule', label: '課程時間', icon: 'Clock' },
+    { id: 'music', label: '倒數音樂', icon: 'Music' },
+    { id: 'system', label: '系統', icon: 'Wrench' },
   ];
 </script>
 
@@ -25,7 +30,7 @@
           class:active={activeTab === tab.id}
           on:click={() => activeTab = tab.id}
         >
-          <span class="tab-icon">{tab.icon}</span>
+          <span class="tab-icon"><svelte:component this={iconMap[tab.icon]} size={16} /></span>
           <span class="tab-label">{tab.label}</span>
         </button>
       {/each}
@@ -82,7 +87,8 @@
     color: white;
   }
   .tab-icon {
-    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
   }
   .tab-content {
     background: var(--bg-secondary);
