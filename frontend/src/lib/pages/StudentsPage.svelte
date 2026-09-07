@@ -36,6 +36,8 @@
   }
 
   async function handleDelete(seatNumber: number) {
+    const student = students.find(s => s.seat_number === seatNumber);
+    if (!confirm(`確定刪除 ${seatNumber} 號 ${student?.name || ''}？\n刪除後將不再參與值日與抬餐排程，此操作無法復原。`)) return;
     try {
       await verifyAndRun(async () => {
         await DeleteStudent(seatNumber);

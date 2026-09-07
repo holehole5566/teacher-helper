@@ -1,4 +1,8 @@
 import { writable, get } from 'svelte/store';
+import { saving, notice } from './draft';
+
+let noticeTimer: ReturnType<typeof setTimeout>;
+
 import { HasPassword, SetPassword, VerifyPassword } from '../../../wailsjs/go/main/App';
 
 export const hasPassword = writable<boolean>(false);
@@ -22,10 +26,31 @@ export async function checkPasswordStatus() {
   }
 }
 
-export function verifyAndRun<T>(action: () => Promise<T>, title: string): Promise<T> {
+export async function verifyAndRun<T>(action: () => Promise<T>, title: string): Promise<T> {
+  if (get(saving)) throw new Error('操作進行中，請稍候');
+  saving.set(true);
+  notice.set('');
+  try {
+    const result = await runVerified(action, title);
+    notice.set(`${title}完成`);
+    clearTimeout(noticeTimer);
+    noticeTimer = setTimeout(() => notice.set(''), 4000);
+    return result;
+  } finally {
+    saving.set(false);
+  }
+}
+
+function runVerified<T>(action: () => Promise<T>, title: string): Promise<T> {
   return new Promise<T>(async (resolve, reject) => {
     // If no password is set on the backend, check status first
-    const hasPw = await HasPassword();
+    let hasPw: boolean;
+    try {
+      hasPw = await HasPassword();
+    } catch (error) {
+      reject(error);
+      return;
+    }
     hasPassword.set(hasPw);
     if (!hasPw) {
       isSetupMode.set(true);

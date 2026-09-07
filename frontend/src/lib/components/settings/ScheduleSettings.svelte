@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { draftGuard, markDraftSaved } from '../../stores/draft';
+  let ready = false;
   import { onMount } from 'svelte';
   import { GetSettings, SaveSettings } from '../../../../wailsjs/go/main/App';
   import { verifyAndRun } from '../../stores/auth';
@@ -31,14 +33,14 @@
 
   async function handleSave() {
     try {
-      const current = await GetSettings();
       await verifyAndRun(async () => {
-        await SaveSettings({
-          ...current,
+        const current = await GetSettings();
+        await SaveSettings(Object.assign(current, {
           countdown_times: countdownTimes,
           period_times: periodTimes,
-        });
+        }));
       }, '儲存課程時間設定');
+      markDraftSaved();
       saved = true;
       setTimeout(() => { saved = false; }, 2000);
     } catch (e: any) {
@@ -48,10 +50,10 @@
     }
   }
 
-  onMount(loadSettings);
+  onMount(() => { loadSettings().then(() => { ready = true; }).catch((e) => alert("載入失敗，請重新開啟此頁：" + e)); });
 </script>
 
-<div class="settings-section">
+<div class="settings-section" use:draftGuard={{ value: JSON.stringify([countdownTimes, periodTimes]), ready, save: handleSave }}>
   <h3 class="section-title">課程時間</h3>
   <p class="section-desc">設定每節課開始時間與倒數觸發點</p>
 

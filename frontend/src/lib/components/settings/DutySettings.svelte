@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { draftGuard, markDraftSaved } from '../../stores/draft';
+  let ready = false;
   import { onMount } from 'svelte';
   import { GetSettings, SaveSettings } from '../../../../wailsjs/go/main/App';
   import { verifyAndRun } from '../../stores/auth';
@@ -34,18 +36,18 @@
     }
 
     try {
-      const current = await GetSettings();
       await verifyAndRun(async () => {
-        await SaveSettings({
-          ...current,
+        const current = await GetSettings();
+        await SaveSettings(Object.assign(current, {
           semester_start_date: semesterStart,
           duty_group_size: dutyGroupSize,
           duty_start_number: dutyStartNumber,
           lunch_group_size: lunchGroupSize,
           lunch_start_number: lunchStartNumber,
           meal_buckets: buckets,
-        });
+        }));
       }, '儲存值日設定');
+      markDraftSaved();
       saved = true;
       setTimeout(() => { saved = false; }, 2000);
     } catch (e: any) {
@@ -55,10 +57,10 @@
     }
   }
 
-  onMount(loadSettings);
+  onMount(() => { loadSettings().then(() => { ready = true; }).catch((e) => alert("載入失敗，請重新開啟此頁：" + e)); });
 </script>
 
-<div class="settings-section">
+<div class="settings-section" use:draftGuard={{ value: JSON.stringify([semesterStart, dutyGroupSize, dutyStartNumber, lunchGroupSize, lunchStartNumber, mealBucketsStr]), ready, save: handleSave }}>
   <h3 class="section-title">值日與抬餐</h3>
   <p class="section-desc">設定學期日期與輪值規則</p>
 

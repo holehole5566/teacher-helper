@@ -5,6 +5,8 @@
   import SystemSettings from '../components/settings/SystemSettings.svelte';
   import { ClipboardList, Clock, Music, Wrench } from 'lucide-svelte';
 
+  import { requestNavigation } from '../stores/draft';
+
   let activeTab = 'duty';
 
   const iconMap: Record<string, any> = {
@@ -28,7 +30,7 @@
         <button
           class="tab-btn"
           class:active={activeTab === tab.id}
-          on:click={() => activeTab = tab.id}
+          on:click={() => { if (activeTab !== tab.id) requestNavigation(() => { activeTab = tab.id; }); }}
         >
           <span class="tab-icon"><svelte:component this={iconMap[tab.icon]} size={16} /></span>
           <span class="tab-label">{tab.label}</span>

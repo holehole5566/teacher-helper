@@ -93,7 +93,7 @@
       <div class="section-card timetable-card">
         <h2><BookOpen size={20} /> 今日課表</h2>
         {#if todayClasses.length > 0}
-          <div class="class-list">
+          <div class="class-list" tabindex="0" role="region" aria-label="今日課表">
             {#each todayClasses as cls}
               <div class="class-row" class:active={cls.idx === currentPeriod}>
                 <span class="period-num">{cls.period}</span>
@@ -111,10 +111,10 @@
     </div>
 
     <!-- Right: duty + lunch -->
-    <div class="panel-right">
+    <div class="panel-right" class:has-homework={missingHomework.length > 0}>
       <div class="section-card duty-card">
         <h2><Brush size={20} /> 今日值日生</h2>
-        <div class="duty-list">
+        <div class="duty-list" tabindex="0" role="region" aria-label="今日值日生">
           {#each dutyStudents as s}
             <div class="duty-chip">
               <span class="seat">{s.seat_number}號</span>
@@ -126,7 +126,7 @@
 
       <div class="section-card lunch-card">
         <h2><UtensilsCrossed size={20} /> 抬餐同學</h2>
-        <div class="lunch-list">
+        <div class="lunch-list" tabindex="0" role="region" aria-label="抬餐同學">
           {#each lunchAssignments as a}
             <div class="lunch-row">
               <span class="student">{a.student.seat_number}號 {a.student.name}</span>
@@ -139,7 +139,7 @@
       {#if missingHomework.length > 0}
         <div class="section-card homework-card">
           <h2><FileText size={20} /> 作業未交</h2>
-          <div class="homework-list">
+          <div class="homework-list" tabindex="0" role="region" aria-label="作業未交">
             {#each missingHomework as hw}
               <div class="homework-item">
                 <span class="hw-subject">{hw.subject}</span>
@@ -172,12 +172,15 @@
     display: flex;
     flex-direction: column;
     padding: 32px 40px;
+    box-sizing: border-box;
+    overflow: hidden;
     font-family: var(--font-family);
     user-select: none;
   }
 
   /* Header */
   .display-header {
+    flex-shrink: 0;
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -200,28 +203,43 @@
   .display-body {
     flex: 1;
     display: grid;
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
     gap: 24px;
     min-height: 0;
   }
   .panel-left {
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    min-width: 0;
   }
   .panel-right {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 2fr);
     gap: 20px;
+    min-height: 0;
+    min-width: 0;
+  }
+  .panel-right.has-homework {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 2fr);
   }
 
   /* Cards */
   .section-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+    overflow-wrap: anywhere;
     background: #ffffff;
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
   .section-card h2 {
+    flex-shrink: 0;
+    margin-top: 0;
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 16px;
@@ -240,6 +258,16 @@
   .lunch-card {
     flex: 1;
     border-left: 4px solid #f59e0b;
+  }
+
+  .class-list,
+  .duty-list,
+  .lunch-list,
+  .homework-list {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
   }
 
   /* Timetable */
@@ -370,6 +398,8 @@
     gap: 6px;
   }
   .hw-name {
+    max-width: 100%;
+    box-sizing: border-box;
     background: #fee2e2;
     color: #991b1b;
     padding: 6px 12px;
@@ -385,9 +415,25 @@
 
   /* Footer */
   .display-footer {
+    flex-shrink: 0;
     text-align: center;
     padding-top: 16px;
     font-size: 12px;
     opacity: 0.4;
+  }
+  @media (max-height: 800px), (max-width: 900px) {
+    .display { padding: 16px 20px; }
+    .display-header { margin-bottom: 12px; padding-bottom: 10px; }
+    .date { font-size: 28px; }
+    .clock { font-size: 36px; }
+    .display-body { gap: 12px; }
+    .panel-right { gap: 10px; }
+    .section-card { padding: 12px; }
+    .section-card h2 { margin-bottom: 8px; font-size: 16px; }
+    .class-row { padding: 6px 10px; }
+    .duty-chip { padding: 6px 10px; }
+    .lunch-row { padding: 6px 10px; }
+    .hw-name { padding: 4px 8px; }
+    .display-footer { padding-top: 8px; }
   }
 </style>

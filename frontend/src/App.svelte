@@ -5,6 +5,8 @@
   import CountdownOverlay from './lib/components/CountdownOverlay.svelte';
   import DisplayMode from './lib/components/DisplayMode.svelte';
   import PasswordModal from './lib/components/PasswordModal.svelte';
+  import DraftFeedback from './lib/components/DraftFeedback.svelte';
+  import { requestNavigation, saving, leavePrompt } from './lib/stores/draft';
   import HomePage from './lib/pages/HomePage.svelte';
   import StudentsPage from './lib/pages/StudentsPage.svelte';
   import SettingsPage from './lib/pages/SettingsPage.svelte';
@@ -71,11 +73,11 @@
       return;
     }
     if (page === 'display') {
-      enterDisplayMode();
+      requestNavigation(() => { enterDisplayMode(); });
       return;
     }
-    currentPage = page;
-    if (page === 'home' && homeRef) homeRef.refresh();
+    if (page === currentPage) return;
+    requestNavigation(() => { currentPage = page; });
   }
 
   onMount(() => {
@@ -91,6 +93,7 @@
 </script>
 
 <PasswordModal />
+<DraftFeedback />
 
 {#if showCountdown}
   <CountdownOverlay seconds={60} triggerTime={countdownTriggerTime} onFinished={onCountdownFinished} />
@@ -99,9 +102,11 @@
 {#if showDisplay}
   <DisplayMode />
 {:else}
-  <Sidebar {currentPage} onNavigate={handleNavigate} />
+  <div class="navigation" inert={$saving || $leavePrompt}>
+    <Sidebar {currentPage} onNavigate={handleNavigate} />
+  </div>
 
-  <main class="main-content">
+  <main class="main-content" inert={$saving || $leavePrompt}>
     {#if currentPage === 'home'}
       <HomePage bind:this={homeRef} />
     {:else if currentPage === 'students'}
@@ -119,6 +124,7 @@
 {/if}
 
 <style>
+  .navigation { height: 100%; }
   .main-content {
     flex: 1;
     display: flex;

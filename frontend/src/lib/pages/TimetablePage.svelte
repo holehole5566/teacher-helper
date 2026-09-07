@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { draftGuard, markDraftSaved } from '../stores/draft';
+  let ready = false;
   import { onMount } from 'svelte';
   import { GetTimetable, SaveTimetable } from '../../../wailsjs/go/main/App';
   import { verifyAndRun } from '../stores/auth';
@@ -28,6 +30,7 @@
       await verifyAndRun(async () => {
         await SaveTimetable(timetable);
       }, '儲存課表');
+      markDraftSaved();
       saved = true;
       setTimeout(() => { saved = false; }, 2000);
     } catch (e: any) {
@@ -37,10 +40,10 @@
     }
   }
 
-  onMount(load);
+  onMount(() => { load().then(() => { ready = true; }).catch((e) => alert("載入失敗，請重新開啟此頁：" + e)); });
 </script>
 
-<div class="page">
+<div class="page" use:draftGuard={{ value: JSON.stringify(timetable), ready, save: handleSave }}>
   <h2 class="page-title">課表設定</h2>
 
   <div class="card">

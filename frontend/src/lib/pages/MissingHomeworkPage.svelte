@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { draftGuard, markDraftSaved } from '../stores/draft';
+  let ready = false;
   import { onMount } from 'svelte';
   import { GetMissingHomework, SaveMissingHomework, GetTimetable, GetStudents } from '../../../wailsjs/go/main/App';
   import { verifyAndRun } from '../stores/auth';
@@ -45,6 +47,7 @@
       }, '儲存作業紀錄');
       originalRecords = JSON.stringify(records);
       hasChanges = false;
+      markDraftSaved();
     } catch (e: any) {
       if (e.message !== '驗證失敗或已取消') {
         alert('儲存失敗: ' + e.message);
@@ -59,6 +62,9 @@
   }
 
   function deleteRecord(index: number) {
+    const record = records[index];
+    if (!confirm(`確定刪除「${record.subject}」作業紀錄（${record.students.length} 位未交）？\n儲存後將無法復原。`)) return;
+    expandedPicker = null;
     records = records.filter((_, i) => i !== index);
     markChanged();
   }
@@ -96,10 +102,10 @@
     expandedPicker = expandedPicker === index ? null : index;
   }
 
-  onMount(load);
+  onMount(() => { load().then(() => { ready = true; }).catch((e) => alert("載入失敗，請重新開啟此頁：" + e)); });
 </script>
 
-<div class="page">
+<div class="page" use:draftGuard={{ value: JSON.stringify(records), ready, save: handleSave }}>
   <div class="page-header">
     <h2 class="page-title">作業未交管理</h2>
     <div class="header-actions">

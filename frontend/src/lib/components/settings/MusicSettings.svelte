@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { draftGuard, markDraftSaved } from '../../stores/draft';
+  let ready = false;
   import { onMount } from 'svelte';
   import { GetSettings, SaveSettings, SelectCountdownMusics, GetCountdownMusicData, ValidateRandomPool } from '../../../../wailsjs/go/main/App';
   import { verifyAndRun } from '../../stores/auth';
@@ -132,16 +134,16 @@
     }
 
     try {
-      const current = await GetSettings();
       await verifyAndRun(async () => {
-        await SaveSettings({
-          ...current,
+        const current = await GetSettings();
+        await SaveSettings(Object.assign(current, {
           countdown_volume: countdownVolume,
           countdown_musics: countdownMusics,
           countdown_time_music_map: countdownTimeMusicMap,
           audio_output_device: audioOutputDevice,
-        });
+        }));
       }, '儲存音樂設定');
+      markDraftSaved();
       saved = true;
       setTimeout(() => { saved = false; }, 2000);
     } catch (e: any) {
@@ -151,10 +153,10 @@
     }
   }
 
-  onMount(loadSettings);
+  onMount(() => { loadSettings().then(() => { ready = true; }).catch((e) => alert("載入失敗，請重新開啟此頁：" + e)); });
 </script>
 
-<div class="settings-section">
+<div class="settings-section" use:draftGuard={{ value: JSON.stringify([countdownMusics, countdownTimeMusicMap, countdownVolume, audioOutputDevice]), ready, save: handleSave }}>
   <h3 class="section-title">倒數音樂</h3>
   <p class="section-desc">管理上課前倒數播放的音樂</p>
 

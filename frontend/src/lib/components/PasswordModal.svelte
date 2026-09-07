@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import {
     showPrompt,
     promptTitle,
@@ -14,7 +13,9 @@
   let passwordInput = '';
   let showPassword = false;
   let rememberMe = false;
-  let inputEl: HTMLInputElement;
+  function focusInput(node: HTMLInputElement) {
+    node.focus();
+  }
 
   function handleSubmit(e: Event) {
     e.preventDefault();
@@ -27,11 +28,7 @@
     passwordInput = '';
   }
 
-  onMount(() => {
-    if (inputEl) {
-      inputEl.focus();
-    }
-  });
+
 </script>
 
 {#if $showPrompt}
@@ -59,7 +56,7 @@
 
         <div class="input-wrapper">
           <input
-            bind:this={inputEl}
+            use:focusInput
             type={showPassword ? 'text' : 'password'}
             placeholder={$isSetupMode ? '請輸入新密碼' : '請輸入密碼'}
             value={passwordInput}

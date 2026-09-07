@@ -29,6 +29,7 @@
   }
 
   async function handleDelete(dateStr: string) {
+    if (!confirm(`確定刪除 ${dateStr} 假期？\n此日期將重新依工作日規則計算排程，此操作無法復原。`)) return;
     try {
       await verifyAndRun(async () => {
         await DeleteHoliday(dateStr);
@@ -42,6 +43,7 @@
   }
 
   async function handleClear() {
+    if (!confirm(`確定清空全部 ${holidays.length} 筆假期？\n這會影響值日與抬餐排程，此操作無法復原。`)) return;
     try {
       await verifyAndRun(async () => {
         await ClearHolidays();
