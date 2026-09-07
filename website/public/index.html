@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teacher Helper 班級值日生助手｜把時間留給教學</title>
+    <meta
+      name="description"
+      content="給老師的班級管理桌面工具。自動安排值日與抬餐、整理課表與未交作業，搭配全螢幕展示和上課倒數，讓教室日常更有條理。支援 Windows 與 Linux。"
+    />
+    <meta name="theme-color" content="#235c48" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_TW" />
+    <meta property="og:title" content="Teacher Helper 班級值日生助手" />
+    <meta
+      property="og:description"
+      content="少一點班務，多一點教學。值日輪替、今日課表、未交作業，一個畫面就清楚。"
+    />
+    <meta property="og:url" content="https://teacher-helper.pe4nut.com/" />
+    <link rel="canonical" href="https://teacher-helper.pe4nut.com/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳至主要內容</a>
+    <header class="site-header wrap">
+      <a class="brand" href="/" aria-label="Teacher Helper 首頁"
+        ><span class="brand-icon" aria-hidden="true">助</span
+        ><span>Teacher Helper<small>班級值日生助手</small></span></a
+      >
+      <nav aria-label="主要導覽">
+        <a href="#features">功能介紹</a><a href="#start">開始使用</a
+        ><a class="nav-download" href="#download"
+          >下載程式 <span aria-hidden="true">↗</span></a
+        >
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero wrap" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">
+            <span class="dot"></span> 給老師的教室日常小幫手
+          </p>
+          <h1 id="hero-title">
+            少一點班務，<br />多一點<span class="highlight">教學。</span>
+          </h1>
+          <p class="lead">
+            今天誰值日、誰抬餐、還有誰沒交作業？<br
+              class="desktop-break"
+            />把每天重複的小事整理好，讓老師與學生都一目了然。
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#download"
+              >下載班級值日生助手 <span aria-hidden="true">↓</span></a
+            ><a class="text-link" href="#features"
+              >看看能幫上什麼忙 <span aria-hidden="true">→</span></a
+            >
+          </div>
+          <p class="hero-meta">
+            Windows / Linux <span>·</span> 桌面應用程式
+            <span>·</span> 班級資料儲存在本機
+          </p>
+        </div>
+        <figure class="preview">
+          <div class="preview-bar">
+            <span class="window-dots" aria-hidden="true">● ● ●</span
+            ><span>教室裡的今天</span
+            ><span class="preview-badge">展示模式</span>
+          </div>
+          <div class="preview-body">
+            <div class="preview-heading">
+              <div>
+                <p>新的一天，一起準備好。</p>
+                <strong>星期一</strong>
+              </div>
+              <span class="preview-clock">08:40</span>
+            </div>
+            <div class="preview-grid">
+              <div class="preview-card schedule">
+                <h3>
+                  <span class="mini-icon green" aria-hidden="true">▤</span>
+                  今日課表
+                </h3>
+                <div class="lesson current">
+                  <span>1</span><b>國語</b><small>上課中</small>
+                </div>
+                <div class="lesson"><span>2</span><b>數學</b></div>
+                <div class="lesson"><span>3</span><b>英語</b></div>
+                <div class="lesson"><span>4</span><b>自然</b></div>
+                <div class="lesson recess"><span>☀</span><b>午休時間</b></div>
+              </div>
+              <div class="preview-side">
+                <div class="preview-card">
+                  <h3>
+                    <span class="mini-icon blue" aria-hidden="true">✓</span>
+                    今日值日生
+                  </h3>
+                  <div class="name-chips">
+                    <span>01 陳小宇</span><span>02 林語晴</span>
+                  </div>
+                </div>
+                <div class="preview-card">
+                  <h3>
+                    <span class="mini-icon amber" aria-hidden="true">▦</span>
+                    抬餐同學
+                  </h3>
+                  <div class="meal">
+                    <span>03 王柏安</span><small>飯桶</small>
+                  </div>
+                  <div class="meal">
+                    <span>04 張雅涵</span><small>菜桶</small>
+                  </div>
+                </div>
+                <div class="preview-card homework">
+                  <h3>
+                    <span class="mini-icon rose" aria-hidden="true">▧</span>
+                    作業未交
+                  </h3>
+                  <p>數學習作 <span>2 位</span></p>
+                  <div class="homework-seats">07 號、12 號</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption>
+            <span aria-hidden="true">✦</span> 展示畫面概念示意 ·
+            使用虛構資料，非實際截圖
+          </figcaption>
+        </figure>
+      </section>
+
+      <div class="benefits wrap" aria-label="產品特色">
+        <p><span aria-hidden="true">01</span> 輪值排程，自動算好</p>
+        <p><span aria-hidden="true">02</span> 教室資訊，清楚展示</p>
+        <p><span aria-hidden="true">03</span> 本機管理，不需雲端帳號</p>
+      </div>
+
+      <section
+        id="features"
+        class="section wrap"
+        aria-labelledby="features-title"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">LESS ROUTINE, MORE TEACHING</p>
+            <h2 id="features-title">班級裡的小事，<br />有條理地放在一起。</h2>
+          </div>
+          <p>從早上的輪值安排，到上課前的提醒，<br />不必每天再重寫一遍。</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature">
+            <span class="feature-number">01 / 輪值</span>
+            <h3>值日與抬餐，自動輪替</h3>
+            <p>
+              依學期起始日與參與名單安排輪值，扣除假日。可調整每組人數、起始座號與餐桶名稱。
+            </p>
+            <span class="feature-tag">少花時間手動排班</span>
+          </article>
+          <article class="feature">
+            <span class="feature-number">02 / 課表</span>
+            <h3>今日課程，一眼掌握</h3>
+            <p>
+              設定週一到週五的課表，包含午休時段。首頁與展示模式都能查看今日課程與目前節次。
+            </p>
+            <span class="feature-tag">讓每天更有節奏</span>
+          </article>
+          <article class="feature">
+            <span class="feature-number">03 / 投影</span>
+            <h3>放大畫面，全班都看見</h3>
+            <p>
+              全螢幕展示課表、值日生、抬餐名單與未交作業。老師不必反覆提醒，學生也知道該做什麼。
+            </p>
+            <span class="feature-tag">適合教室投影</span>
+          </article>
+          <article class="feature">
+            <span class="feature-number">04 / 作業</span>
+            <h3>誰還沒交，不再靠記憶</h3>
+            <p>
+              依科目整理未交作業、選取學生並加上備註，集中查看待補交名單，方便每日追蹤。
+            </p>
+            <span class="feature-tag">班務紀錄更清楚</span>
+          </article>
+          <article class="feature">
+            <span class="feature-number">05 / 提醒</span>
+            <h3>上課前，給一分鐘準備</h3>
+            <p>
+              設定時間點，上課前一分鐘自動開啟全螢幕倒數。可搭配本機音樂，提醒大家回到座位。
+            </p>
+            <span class="feature-tag">建立上課儀式感</span>
+          </article>
+          <article class="feature">
+            <span class="feature-number">06 / 排程</span>
+            <h3>假日與匯出，也照顧到了</h3>
+            <p>
+              手動管理假日，或連線同步政府行事曆。還能匯出未來 90 天的 CSV
+              排程，方便留存與列印。
+            </p>
+            <span class="feature-tag">提前準備更安心</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="start" class="start-section" aria-labelledby="start-title">
+        <div class="wrap start-layout">
+          <div>
+            <p class="eyebrow">GET STARTED</p>
+            <h2 id="start-title">準備好班級資料，<br />就能開始新的一天。</h2>
+            <p class="muted">
+              這是安裝在電腦上的桌面工具，<br />不是在網頁上登入使用的班級系統。
+            </p>
+          </div>
+          <ol class="steps">
+            <li>
+              <span>1</span>
+              <div>
+                <h3>下載適合你的版本</h3>
+                <p>
+                  選擇 Windows 或
+                  Linux，將程式放在可寫入、方便保留資料的資料夾。
+                </p>
+              </div>
+            </li>
+            <li>
+              <span>2</span>
+              <div>
+                <h3>設定你的班級</h3>
+                <p>
+                  首次啟動先設定管理員密碼，再新增學生、學期起始日、輪值規則與課表。
+                </p>
+              </div>
+            </li>
+            <li>
+              <span>3</span>
+              <div>
+                <h3>開啟今日總覽或展示模式</h3>
+                <p>
+                  查看今日安排，接上教室投影。需要修改時，按 ESC 回到管理畫面。
+                </p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section wrap faq-section" aria-labelledby="faq-title">
+        <div>
+          <p class="eyebrow">GOOD TO KNOW</p>
+          <h2 id="faq-title">開始前，<br />你可能想知道。</h2>
+        </div>
+        <div class="faq">
+          <details>
+            <summary>需要網路或註冊帳號嗎？</summary>
+            <p>
+              不需要註冊雲端帳號。日常的名單、課表與排程在本機運作；下載程式、同步政府假日、檢查更新，以及啟用
+              Discord 錯誤通知時需要網路。
+            </p>
+          </details>
+          <details>
+            <summary>班級資料放在哪裡？怎麼備份？</summary>
+            <p>
+              資料存放在本機的
+              <code>data/config.json</code>。程式優先使用執行檔旁的
+              <code>data/</code>
+              資料夾，若不存在才尋找工作目錄。關閉程式後，備份實際使用的整個
+              <code>data/</code>
+              資料夾即可；更新程式時請保留它。音樂檔需另外保存。
+            </p>
+          </details>
+          <details>
+            <summary>支援哪些電腦？</summary>
+            <p>
+              目前提供 Windows x64 與 Linux x64 下載。Windows 需要 WebView2
+              Runtime；Linux 需要 GTK 3 與 WebKitGTK 4.1 執行環境，建議使用
+              Ubuntu 24.04 或相容系統。尚未提供 macOS 安裝檔。
+            </p>
+          </details>
+          <details>
+            <summary>這個網站會讀取班上的學生資料嗎？</summary>
+            <p>
+              不會。這只是功能介紹與下載頁，沒有連接桌面程式或上傳班級資料的功能，也沒有加入追蹤分析程式。若在教室外展示畫面，請留意學生姓名與未交作業的隱私。
+            </p>
+          </details>
+        </div>
+      </section>
+
+      <section
+        id="download"
+        class="download-section wrap"
+        aria-labelledby="download-title"
+      >
+        <div>
+          <p class="eyebrow">READY FOR YOUR CLASSROOM</p>
+          <h2 id="download-title">把時間，留給更重要的事。</h2>
+          <p>下載 Teacher Helper，從整理明天的班務開始。</p>
+        </div>
+        <div class="download-actions">
+          <a
+            class="button light"
+            href="https://github.com/holehole5566/teacher-helper/releases/latest/download/teacher-wails.exe"
+            >下載 Windows x64 <span aria-hidden="true">↓</span></a
+          ><a
+            class="button outline-light"
+            href="https://github.com/holehole5566/teacher-helper/releases/latest/download/teacher-wails-linux-amd64.tar.gz"
+            >下載 Linux x64 <span aria-hidden="true">↓</span></a
+          >
+        </div>
+        <p class="download-note">
+          下載由 GitHub Releases 提供，自動連結至最新發行版。<a
+            href="https://github.com/holehole5566/teacher-helper/releases"
+            >查看版本紀錄 →</a
+          >
+        </p>
+      </section>
+    </main>
+    <footer class="site-footer wrap">
+      <a class="brand footer-brand" href="/"
+        >Teacher Helper<span>讓教室日常，更從容。</span></a
+      >
+      <div>
+        <a href="https://github.com/holehole5566/teacher-helper"
+          >GitHub 原始碼 ↗</a
+        ><a href="https://github.com/holehole5566/teacher-helper/issues"
+          >問題回報 ↗</a
+        >
+      </div>
+      <p>Made for the everyday classroom.</p>
+    </footer>
+  </body>
+</html>

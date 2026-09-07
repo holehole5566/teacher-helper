@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://teacher-helper.pe4nut.com/sitemap.xml

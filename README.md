@@ -37,6 +37,12 @@ teacher-helper/
             └── config.json
 ```
 
+## 介紹網站
+
+靜態介紹與下載頁：<https://teacher-helper.pe4nut.com/>。
+
+網站原始碼位於 `website/`，使用 Cloudflare Workers Static Assets 部署，與桌面應用程式分離。預覽及部署方式見 [website/README.md](website/README.md)。
+
 ## 開發
 
 需要先安裝 [Wails CLI](https://wails.io/docs/gettingstarted/installation)。
