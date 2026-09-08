@@ -195,10 +195,18 @@
 
 <style>
   .page-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     display: flex;
     align-items: center;
     gap: 16px;
     margin-bottom: 20px;
+    padding: 8px 0 12px;
+    background: var(--bg-primary);
+  }
+  .page-header .page-title {
+    margin-bottom: 0;
   }
   .add-wrapper {
     position: relative;

@@ -68,12 +68,14 @@
             type="button"
             class="toggle-visible"
             on:click={() => showPassword = !showPassword}
+            aria-label={showPassword ? '隱藏密碼' : '顯示密碼'}
+            title={showPassword ? '隱藏密碼' : '顯示密碼'}
             tabindex="-1"
           >
             {#if showPassword}
-              <EyeOff size={18} />
-            {:else}
               <Eye size={18} />
+            {:else}
+              <EyeOff size={18} />
             {/if}
           </button>
         </div>
