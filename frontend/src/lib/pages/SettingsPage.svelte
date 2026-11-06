@@ -57,9 +57,11 @@
     display: flex;
     flex-direction: column;
     gap: 0;
-    max-width: 640px;
+    width: 100%;
+    max-width: 75em;
   }
   .tab-bar {
+    flex-wrap: wrap;
     display: flex;
     gap: 4px;
     padding: 4px;
@@ -69,6 +71,8 @@
     border-bottom: 1px solid var(--border);
   }
   .tab-btn {
+    flex: 1 1 auto;
+    justify-content: center;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -76,7 +80,7 @@
     border-radius: 8px;
     background: transparent;
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 500;
     transition: all 0.15s;
   }
@@ -96,6 +100,6 @@
     background: var(--bg-secondary);
     border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     box-shadow: var(--shadow);
-    padding: 24px;
+    padding: clamp(14px, 2vw, 32px);
   }
 </style>

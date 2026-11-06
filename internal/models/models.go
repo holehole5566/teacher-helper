@@ -46,7 +46,7 @@ type Config struct {
 	Settings        Settings          `json:"settings"`
 	Holidays        []string          `json:"holidays"`
 	Timetable       [5][8]string      `json:"timetable"`
-	MissingHomework []MissingHomework `json:"missing_homework"`
+	MissingHomework []MissingHomework `json:"missing_homework,omitempty"`
 }
 
 // LunchAssignment pairs a student with a meal bucket.

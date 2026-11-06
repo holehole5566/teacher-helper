@@ -1,9 +1,23 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import StudentPicker from '../components/StudentPicker.svelte';
-  import { GetTodayDuty, GetStudents, GetTimetable, GetSettings, GetMissingHomework, ReportError } from '../../../wailsjs/go/main/App';
+  import HistoryNav from '../components/HistoryNav.svelte';
+  import { GetDailyOverview, GetDailyDates, SaveDailyAssignments } from '../../../wailsjs/go/main/App';
   import { RotateCcw, PartyPopper, BookOpen, Brush, UtensilsCrossed, FileText } from 'lucide-svelte';
 
+  export let presentation = false;
+  export let selectedDate = '';
+  export let onDateChange: (value: string) => void = () => {};
+  let dates: string[] = [];
+  let date = '';
+  let today = '';
+  let error = '';
+  let reviewFromYesterday = '';
+  let busy = false;
+  let touchX = 0;
+  let touchY = 0;
+  let clock = '';
+  $: historical = date !== today;
   const periodLabels = ['1', '2', '3', '4', '午休', '5', '6', '7'];
 
   let displayDate = '';
@@ -12,8 +26,6 @@
   let lunchAssignments: any[] = [];
   let loading = true;
 
-  let origDuty: any[] = [];
-  let origLunch: any[] = [];
   let dutyModified = false;
   let lunchModified = false;
 
@@ -30,22 +42,21 @@
   export async function refresh() {
     loading = true;
     try {
-      const result = await GetTodayDuty();
-      displayDate = result.displayDate || '';
-      isWorkday = result.isWorkday || false;
-      origDuty = result.dutyStudents || [];
-      origLunch = result.lunchAssignments || [];
-      dutyStudents = [...origDuty];
-      lunchAssignments = origLunch.map((a: any) => ({ ...a }));
-      dutyModified = false;
-      lunchModified = false;
-      allStudents = await GetStudents();
-
-      const settings = await GetSettings();
-      periodTimes = settings.period_times || [];
-
-      const tt = await GetTimetable();
-      const dow = new Date().getDay();
+      error = '';
+      const record = await GetDailyOverview(date);
+      const result = record.duty;
+      displayDate = result.displayDate || date;
+      isWorkday = result.isWorkday;
+      dutyStudents = result.dutyStudents || [];
+      lunchAssignments = result.lunchAssignments || [];
+      dutyModified = record.manual_duty;
+      lunchModified = record.manual_lunch;
+      allStudents = record.students || [];
+      periodTimes = record.period_times || [];
+      missingHomework = record.missing_homework || [];
+      reviewFromYesterday = record.review_from_yesterday || '';
+      const tt = record.timetable;
+      const dow = new Date(date + "T12:00:00").getDay();
       todayClasses = [];
       if (dow >= 1 && dow <= 5 && tt) {
         const dayClasses = tt[dow - 1] || [];
@@ -58,9 +69,12 @@
         }
       }
       updateCurrentPeriod();
-      missingHomework = await GetMissingHomework();
+
     } catch (e: any) {
-      ReportError(`首頁資料載入失敗：${e?.message || e}`);
+      error = String(e?.message || e);
+      displayDate = date;
+      isWorkday = false;
+      reviewFromYesterday = ''; dutyModified = false; lunchModified = false;
     }
     loading = false;
   }
@@ -68,7 +82,9 @@
   function updateCurrentPeriod() {
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
+    clock = now.toLocaleTimeString('zh-TW', { hour12: false });
     currentPeriod = -1;
+    if (date !== today) return;
     for (let i = periodTimes.length - 1; i >= 0; i--) {
       if (!periodTimes[i]) continue;
       const [h, m] = periodTimes[i].split(':').map(Number);
@@ -87,32 +103,48 @@
     showPicker = false;
     pickerCallback = null;
   }
-  function replaceDuty(index: number) {
-    openPicker((s) => {
-      dutyStudents[index] = s;
-      dutyStudents = dutyStudents;
-      dutyModified = true;
+  async function persist(duty: any[], lunch: any[], reset = false) {
+    busy = true;
+    try {
+      await SaveDailyAssignments(date, duty, lunch, reset);
+      await refresh();
       closePicker();
-    });
+    } catch (e) { error = `儲存失敗：${e}`; }
+    finally { busy = false; }
+  }
+  function replaceDuty(index: number) {
+    if (historical || presentation || busy) return;
+    openPicker((student) => { const next = [...dutyStudents]; next[index] = student; persist(next, lunchAssignments); });
   }
   function replaceLunch(index: number) {
-    openPicker((s) => {
-      lunchAssignments[index] = { ...lunchAssignments[index], student: s };
-      lunchAssignments = lunchAssignments;
-      lunchModified = true;
-      closePicker();
-    });
+    if (historical || presentation || busy) return;
+    openPicker((student) => { const next = [...lunchAssignments]; next[index] = {...next[index], student}; persist(dutyStudents, next); });
   }
-  function resetAll() {
-    dutyStudents = [...origDuty];
-    lunchAssignments = origLunch.map((a: any) => ({ ...a }));
-    dutyModified = false;
-    lunchModified = false;
+  async function changeDate(next: string) { date = next; selectedDate = next; onDateChange(next); closePicker(); await refresh(); }
+  function swipe(e: TouchEvent) {
+    const dx = e.changedTouches[0].clientX - touchX;
+    const dy = e.changedTouches[0].clientY - touchY;
+    if (busy || loading || Math.abs(dx) < 80 || Math.abs(dx) < Math.abs(dy)*1.5) return;
+    const next = dates.indexOf(date) + (dx > 0 ? 1 : -1);
+    if (dates[next]) changeDate(dates[next]);
   }
-
+  let checking = false;
+  async function tick() {
+    updateCurrentPeriod();
+    if (checking) return;
+    checking = true;
+    try {
+      const next = await GetDailyDates();
+      if (next[0] !== today) {
+        const wasToday = date === today;
+        dates = next; today = next[0];
+        if (wasToday || !dates.includes(date)) await changeDate(today);
+      }
+    } finally { checking = false; }
+  }
   onMount(() => {
-    refresh();
-    clockInterval = setInterval(updateCurrentPeriod, 1000);
+    (async () => { try { dates = await GetDailyDates(); today = dates[0]; await changeDate(dates.includes(selectedDate) ? selectedDate : today); } catch(e) { error = String(e); loading = false; } })();
+    clockInterval = setInterval(() => { tick().catch(() => {}); }, 1000);
   });
 
   onDestroy(() => clearInterval(clockInterval));
@@ -122,17 +154,30 @@
   <StudentPicker students={allStudents} onPick={(s) => pickerCallback && pickerCallback(s)} onClose={closePicker} />
 {/if}
 
-<div class="page">
+<div class="page" class:presentation on:touchstart={(e) => { touchX = e.touches[0].clientX; touchY = e.touches[0].clientY; }} on:touchend={swipe}>
+  <HistoryNav {dates} {date} busy={busy || loading} onChange={changeDate} />
   <div class="date-header">
-    <h2 class="page-title">今日總覽</h2>
+    <h2 class="page-title">{historical ? '歷史總覽' : '今日總覽'}</h2>
     <span class="date-display">{displayDate}</span>
-    {#if dutyModified || lunchModified}
-      <button class="btn-outline btn-sm" on:click={resetAll}><RotateCcw size={14} /> 重設排程</button>
+    {#if presentation}<span class="clock">{clock}</span>{/if}
+    {#if historical}<span class="badge badge-muted">歷史快照・唯讀</span>{/if}
+    {#if !historical && !presentation && (dutyModified || lunchModified)}
+      <button class="btn-outline btn-sm" disabled={busy} on:click={() => persist([], [], true)}><RotateCcw size={14} /> 重設排程</button>
     {/if}
   </div>
 
+  {#if error}<p class="error-message" role="alert">{error}</p>{/if}
+  {#if !loading && !error && reviewFromYesterday}
+    <section class="card scheduled-review" aria-labelledby="scheduled-review-title">
+      <h3 id="scheduled-review-title">今日複習考</h3>
+      <p class="review-source">前一天聯絡簿的複習考提醒</p>
+      <p class="review-content">{reviewFromYesterday}</p>
+    </section>
+  {/if}
   {#if loading}
     <div class="empty-state">載入中...</div>
+  {:else if error && !isWorkday}
+    <div class="empty-state">此日期沒有可顯示的資料</div>
   {:else if !isWorkday}
     <div class="card">
       <div class="rest-message">
@@ -177,7 +222,7 @@
           {#if dutyStudents && dutyStudents.length > 0}
             <div class="chip-list">
               {#each dutyStudents as student, i}
-                <button class="student-chip" title="點擊替換" on:click={() => replaceDuty(i)}>
+                <button class="student-chip" disabled={historical || presentation || busy} title="點擊替換" on:click={() => replaceDuty(i)}>
                   <span class="seat">{student.seat_number}號</span>
                   <span class="name">{student.name}</span>
                 </button>
@@ -197,7 +242,7 @@
           {#if lunchAssignments && lunchAssignments.length > 0}
             <div class="lunch-list">
               {#each lunchAssignments as a, i}
-                <button class="lunch-row" title="點擊替換" on:click={() => replaceLunch(i)}>
+                <button class="lunch-row" disabled={historical || presentation || busy} title="點擊替換" on:click={() => replaceLunch(i)}>
                   <span class="student-name">{a.student.seat_number}號 {a.student.name}</span>
                   <span class="bucket-tag">{a.bucket}</span>
                 </button>
@@ -237,15 +282,29 @@
 </div>
 
 <style>
+  .scheduled-review { margin-bottom:16px; }
+  .scheduled-review h3 { font-size: calc(var(--ui-font, 14px) * 18 / 14); margin-bottom:4px; }
+  .review-source { font-size: calc(var(--ui-font, 14px) * 13 / 14); color:var(--text-secondary); margin-bottom:12px; }
+  .review-content { font-size: calc(var(--ui-font, 14px) * 20 / 14); font-weight:600; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .presentation .review-content { font-size: calc(var(--ui-font, 14px) * 28 / 14); }
+  .error-message { color:#b91c1c; padding:12px 0; }
+  .clock { margin-left:auto; font-variant-numeric:tabular-nums; }
+  .presentation { font-size: calc(var(--ui-font, 14px) * 20 / 14); }
+  .presentation .home-grid { grid-template-columns:minmax(0, 1fr) minmax(280px, 1fr); }
+  .presentation .subject, .presentation .name, .presentation .student-name { font-size: calc(var(--ui-font, 14px) * 22 / 14); }
+  .presentation .hw-chip, .presentation .seat { font-size: calc(var(--ui-font, 14px) * 16 / 14); }
+  button:disabled { cursor:default; }
+  @media(max-width:700px) { .presentation .home-grid { grid-template-columns:1fr; } }
   .date-header {
     display: flex;
     align-items: baseline;
+    flex-wrap:wrap;
     gap: 16px;
     margin-bottom: 20px;
   }
   .date-display {
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: calc(var(--ui-font, 14px) * 14 / 14);
   }
   .rest-message {
     text-align: center;
@@ -259,7 +318,7 @@
     color: #f59e0b;
   }
   .rest-message h3 {
-    font-size: 18px;
+    font-size: calc(var(--ui-font, 14px) * 18 / 14);
     margin-bottom: 8px;
   }
   .rest-message p {
@@ -269,7 +328,7 @@
   /* Grid layout: timetable left, duty/lunch right */
   .home-grid {
     display: grid;
-    grid-template-columns: 1fr 260px;
+    grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr);
     gap: 16px;
     flex: 1;
     min-height: 0;
@@ -291,7 +350,7 @@
     color: var(--text-secondary);
   }
   .section-title {
-    font-size: 15px;
+    font-size: calc(var(--ui-font, 14px) * 15 / 14);
     font-weight: 600;
   }
   .class-list {
@@ -318,7 +377,7 @@
     justify-content: center;
     border-radius: 50%;
     background: #f1f5f9;
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 700;
     flex-shrink: 0;
   }
@@ -327,12 +386,12 @@
     color: white;
   }
   .subject {
-    font-size: 15px;
+    font-size: calc(var(--ui-font, 14px) * 15 / 14);
     font-weight: 600;
     flex: 1;
   }
   .now-tag {
-    font-size: 10px;
+    font-size: calc(var(--ui-font, 14px) * 10 / 14);
     font-weight: 700;
     background: #22c55e;
     color: white;
@@ -379,12 +438,12 @@
     background: #dbeafe;
   }
   .seat {
-    font-size: 11px;
+    font-size: calc(var(--ui-font, 14px) * 11 / 14);
     color: var(--accent);
     font-weight: 600;
   }
   .name {
-    font-size: 14px;
+    font-size: calc(var(--ui-font, 14px) * 14 / 14);
     font-weight: 700;
     color: var(--text-primary);
   }
@@ -412,7 +471,7 @@
     background: #fef3c7;
   }
   .student-name {
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 600;
     color: var(--text-primary);
   }
@@ -421,13 +480,13 @@
     color: #92400e;
     padding: 2px 8px;
     border-radius: 20px;
-    font-size: 11px;
+    font-size: calc(var(--ui-font, 14px) * 11 / 14);
     font-weight: 600;
   }
 
   .no-data {
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
   }
 
   .homework-accent {
@@ -444,7 +503,7 @@
     gap: 4px;
   }
   .hw-subject {
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 700;
     color: #991b1b;
   }
@@ -458,11 +517,23 @@
     color: #991b1b;
     padding: 2px 8px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: calc(var(--ui-font, 14px) * 12 / 14);
     font-weight: 600;
   }
   .hw-note {
-    font-size: 11px;
+    font-size: calc(var(--ui-font, 14px) * 11 / 14);
     color: var(--text-secondary);
+  }
+  .page:not(.presentation) { --ui-font: clamp(14px, calc(2px + 1vw), 26px); font-size: var(--ui-font); }
+  .page:not(.presentation) .right-panel { min-width: 0; }
+  .subject, .student-name, .name { overflow-wrap: anywhere; min-width: 0; }
+  .lunch-row { gap: 8px; text-align: left; }
+  .bucket-tag { flex-shrink: 0; }
+  .page:not(.presentation) .class-row { padding: 0.65em 0.8em; }
+  .page:not(.presentation) .compact-card { padding: 1em !important; }
+  .page:not(.presentation) .period-num { width: 2.2em; height: 2.2em; }
+  @container workspace (max-width: 620px) {
+    .home-grid { grid-template-columns: minmax(0, 1fr); }
+    .date-header { gap: 8px 12px; }
   }
 </style>

@@ -97,6 +97,9 @@
     {#if students.length === 0}
       <div class="empty-state">尚無學生，請先新增</div>
     {:else}
+      <!-- Keyboard focus lets users scroll a wide table without a mouse. -->
+      <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+      <div class="table-wrapper" tabindex="0" role="group" aria-label="學生名單，可左右捲動">
       <table>
         <thead>
           <tr>
@@ -141,6 +144,7 @@
           {/each}
         </tbody>
       </table>
+      </div>
     {/if}
   </div>
 </div>
@@ -151,11 +155,13 @@
   }
   .error-msg {
     color: var(--danger);
-    font-size: 12px;
+    font-size: calc(var(--ui-font, 14px) * 12 / 14);
     margin-top: 8px;
   }
   .badge {
     cursor: pointer;
     border: none;
   }
+  table { min-width: 34em; }
+  td { overflow-wrap: anywhere; }
 </style>

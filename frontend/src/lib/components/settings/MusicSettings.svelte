@@ -257,12 +257,12 @@
     gap: 4px;
   }
   .section-title {
-    font-size: 16px;
+    font-size: calc(var(--ui-font, 14px) * 16 / 14);
     font-weight: 600;
     margin: 0;
   }
   .section-desc {
-    font-size: 12px;
+    font-size: calc(var(--ui-font, 14px) * 12 / 14);
     color: var(--text-secondary);
     margin-bottom: 16px;
   }
@@ -273,6 +273,7 @@
     margin-top: 10px;
   }
   .music-row {
+    flex-wrap: wrap;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -282,8 +283,9 @@
     padding: 8px 12px;
   }
   .music-name {
+    min-width: 0;
     flex: 1;
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     color: var(--text-secondary);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -293,7 +295,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 12px;
+    font-size: calc(var(--ui-font, 14px) * 12 / 14);
     white-space: nowrap;
     cursor: pointer;
   }
@@ -335,12 +337,12 @@
     color: var(--text-secondary);
   }
   .vol-value {
-    font-size: 12px;
+    font-size: calc(var(--ui-font, 14px) * 12 / 14);
     color: var(--text-secondary);
     min-width: 36px;
   }
   .empty-hint {
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     color: var(--text-secondary);
     margin: 8px 0;
   }
@@ -351,6 +353,7 @@
     margin-top: 8px;
   }
   .time-music-row {
+    flex-wrap: wrap;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -360,12 +363,12 @@
     padding: 8px 12px;
   }
   .tm-time {
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 600;
     min-width: 48px;
   }
   .tm-select {
-    font-size: 12px;
+    font-size: calc(var(--ui-font, 14px) * 12 / 14);
     padding: 4px 8px;
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -373,6 +376,7 @@
     cursor: pointer;
   }
   .tm-track {
+    min-width: 0;
     max-width: 180px;
   }
   .form-actions {
@@ -383,12 +387,12 @@
   }
   .save-btn {
     padding: 10px 28px;
-    font-size: 14px;
+    font-size: calc(var(--ui-font, 14px) * 14 / 14);
     font-weight: 600;
   }
   .save-ok {
     color: var(--success);
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 500;
   }
 </style>

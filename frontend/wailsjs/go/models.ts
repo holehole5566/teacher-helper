@@ -217,3 +217,64 @@ export namespace models {
 
 }
 
+export namespace services {
+
+	export class DailyRecord {
+	    date: string;
+	    updated_at: string;
+	    duty: models.TodayDutyResult;
+	    students: models.Student[];
+	    timetable: string[][];
+	    period_times: string[];
+	    missing_homework: models.MissingHomework[];
+	    contact_items: string[];
+	    next_day_review: string;
+	    review_from_yesterday: string;
+	    morning_review: string;
+	    manual_duty: boolean;
+	    manual_lunch: boolean;
+	    layout_version: number;
+
+	    static createFrom(source: any = {}) {
+	        return new DailyRecord(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.date = source["date"];
+	        this.updated_at = source["updated_at"];
+	        this.duty = this.convertValues(source["duty"], models.TodayDutyResult);
+	        this.students = this.convertValues(source["students"], models.Student);
+	        this.timetable = source["timetable"];
+	        this.period_times = source["period_times"];
+	        this.missing_homework = this.convertValues(source["missing_homework"], models.MissingHomework);
+	        this.contact_items = source["contact_items"];
+	        this.next_day_review = source["next_day_review"];
+	        this.review_from_yesterday = source["review_from_yesterday"];
+	        this.morning_review = source["morning_review"];
+	        this.manual_duty = source["manual_duty"];
+	        this.manual_lunch = source["manual_lunch"];
+	        this.layout_version = source["layout_version"];
+	    }
+
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+

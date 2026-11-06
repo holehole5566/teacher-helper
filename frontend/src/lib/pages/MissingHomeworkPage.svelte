@@ -195,6 +195,7 @@
 
 <style>
   .page-header {
+    flex-wrap: wrap;
     position: sticky;
     top: 0;
     z-index: 10;
@@ -232,7 +233,7 @@
     text-align: left;
     background: none;
     border: none;
-    font-size: 14px;
+    font-size: calc(var(--ui-font, 14px) * 14 / 14);
     cursor: pointer;
     font-family: inherit;
   }
@@ -242,7 +243,7 @@
   .dropdown-empty {
     padding: 10px 16px;
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
   }
 
   .empty-state {
@@ -251,14 +252,15 @@
     color: var(--text-secondary);
   }
   .empty-icon {
-    font-size: 48px;
+    font-size: calc(var(--ui-font, 14px) * 48 / 14);
     display: block;
     margin-bottom: 12px;
   }
 
   .records-list {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr));
+    align-items: start;
     gap: 16px;
   }
   .record-card {
@@ -275,14 +277,14 @@
     margin-bottom: 12px;
   }
   .record-subject {
-    font-size: 16px;
+    font-size: calc(var(--ui-font, 14px) * 16 / 14);
     font-weight: 700;
     color: var(--text-primary);
   }
   .btn-delete {
     background: none;
     border: none;
-    font-size: 18px;
+    font-size: calc(var(--ui-font, 14px) * 18 / 14);
     cursor: pointer;
     opacity: 0.6;
     transition: opacity 0.15s;
@@ -299,7 +301,7 @@
     padding: 8px 12px;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-family: inherit;
   }
   .note-input:focus {
@@ -315,6 +317,8 @@
     min-height: 32px;
   }
   .student-chip {
+    max-width: 100%;
+    overflow-wrap: anywhere;
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -322,26 +326,26 @@
     color: #991b1b;
     padding: 4px 10px;
     border-radius: 6px;
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 600;
   }
   .chip-remove {
     background: none;
     border: none;
     color: #991b1b;
-    font-size: 16px;
+    font-size: calc(var(--ui-font, 14px) * 16 / 14);
     cursor: pointer;
     padding: 0 2px;
     line-height: 1;
   }
   .no-students {
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
   }
 
   .student-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
     gap: 6px;
     margin-top: 10px;
     padding: 12px;
@@ -352,7 +356,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     cursor: pointer;
   }
   .student-checkbox input {
@@ -364,6 +368,7 @@
     align-items: center;
     gap: 12px;
     margin-left: auto;
+    flex-wrap: wrap;
   }
 
   .btn-success {

@@ -47,7 +47,9 @@
   <h2 class="page-title">課表設定</h2>
 
   <div class="card">
-    <div class="table-wrapper">
+    <!-- Keyboard focus lets users scroll a wide table without a mouse. -->
+      <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+      <div class="table-wrapper" tabindex="0" role="group" aria-label="每週課表，可左右捲動">
       <table class="timetable">
         <thead>
           <tr>
@@ -92,20 +94,22 @@
     margin-bottom: 16px;
   }
   .timetable {
+    min-width: 36em;
+    table-layout: fixed;
     width: 100%;
     border-collapse: collapse;
   }
   .timetable th {
     text-align: center;
     padding: 8px;
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
   }
   .period-col {
-    width: 60px;
+    width: 5em;
     text-align: center;
     font-weight: 600;
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
   }
   .cell {
     padding: 3px;
@@ -116,7 +120,7 @@
     padding: 8px 4px;
     border: 1px solid var(--border);
     border-radius: 6px;
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     background: var(--bg-primary);
     transition: border-color 0.15s;
   }
@@ -131,7 +135,7 @@
   }
   .save-ok {
     color: var(--success);
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 500;
   }
 </style>

@@ -31,6 +31,9 @@ func NewDataHandler() (*DataHandler, error) {
 	if err := dh.initConfig(); err != nil {
 		return nil, err
 	}
+	if err := dh.initDailyData(); err != nil {
+		return nil, err
+	}
 	return dh, nil
 }
 
@@ -44,6 +47,9 @@ func NewDataHandlerWithPath(dataDir string) (*DataHandler, error) {
 		return nil, err
 	}
 	if err := dh.initConfig(); err != nil {
+		return nil, err
+	}
+	if err := dh.initDailyData(); err != nil {
 		return nil, err
 	}
 	return dh, nil
@@ -189,6 +195,10 @@ func (dh *DataHandler) SaveConfig(config models.Config) error {
 }
 
 func (dh *DataHandler) saveConfigUnsafe(config models.Config) error {
+	// Once migrated, mutable homework belongs exclusively to data.json.
+	if daily, err := dh.loadDailyUnsafe(); err == nil && daily.MissingHomework != nil {
+		config.MissingHomework = nil
+	}
 	data, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {
 		return err
@@ -271,23 +281,50 @@ func (dh *DataHandler) SaveTimetable(timetable [5][8]string) error {
 	return dh.saveConfigUnsafe(config)
 }
 
-// GetMissingHomework returns the missing homework list.
+// GetMissingHomework returns the current working records, separate from frozen history.
 func (dh *DataHandler) GetMissingHomework() ([]models.MissingHomework, error) {
-	config, err := dh.LoadConfig()
-	if err != nil {
-		return nil, err
-	}
-	return config.MissingHomework, nil
-}
-
-// SaveMissingHomework saves the missing homework list.
-func (dh *DataHandler) SaveMissingHomework(records []models.MissingHomework) error {
 	dh.mu.Lock()
 	defer dh.mu.Unlock()
-	config, err := dh.loadConfigUnsafe()
+	data, err := dh.loadDailyUnsafe()
+	return data.MissingHomework, err
+}
+func (dh *DataHandler) SaveMissingHomework(records []models.MissingHomework) error {
+	return dh.UpdateDailyData(func(data *DailyData) error { data.MissingHomework = records; return nil })
+}
+
+func (dh *DataHandler) initDailyData() error {
+	config, err := dh.LoadConfig()
 	if err != nil {
 		return err
 	}
-	config.MissingHomework = records
-	return dh.saveConfigUnsafe(config)
+	if err = dh.UpdateDailyData(func(data *DailyData) error {
+		if data.MissingHomework == nil {
+			data.MissingHomework = config.MissingHomework
+		}
+		if data.MissingHomework == nil {
+			data.MissingHomework = []models.MissingHomework{}
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+	raw, err := os.ReadFile(dh.configFile)
+	if err != nil {
+		return err
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &fields); err != nil {
+		return err
+	}
+	if _, legacy := fields["missing_homework"]; legacy {
+		backup := dh.configFile + ".before-daily-split.bak"
+		if _, err := os.Stat(backup); os.IsNotExist(err) {
+			if err := os.WriteFile(backup, raw, 0600); err != nil {
+				return err
+			}
+		}
+		config.MissingHomework = nil
+		return dh.SaveConfig(config)
+	}
+	return nil
 }

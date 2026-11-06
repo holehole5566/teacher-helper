@@ -124,7 +124,7 @@
     background: var(--bg-primary);
     padding: 6px 10px 6px 14px;
     border-radius: 20px;
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
   }
   .holiday-date {
     color: var(--text-primary);

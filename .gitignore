@@ -25,3 +25,7 @@ Thumbs.db
 # Data (if contains local/sensitive data)
 # data/
 docs/
+
+# Daily history and migration backups are local classroom data
+data/data.json
+data/config.json.before-daily-split.bak

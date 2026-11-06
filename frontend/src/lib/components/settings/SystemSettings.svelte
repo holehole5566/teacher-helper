@@ -121,12 +121,12 @@
     gap: 4px;
   }
   .section-title {
-    font-size: 16px;
+    font-size: calc(var(--ui-font, 14px) * 16 / 14);
     font-weight: 600;
     margin: 0;
   }
   .section-desc {
-    font-size: 12px;
+    font-size: calc(var(--ui-font, 14px) * 12 / 14);
     color: var(--text-secondary);
     margin-bottom: 16px;
   }
@@ -138,12 +138,12 @@
   }
   .save-btn {
     padding: 10px 28px;
-    font-size: 14px;
+    font-size: calc(var(--ui-font, 14px) * 14 / 14);
     font-weight: 600;
   }
   .save-ok {
     color: var(--success);
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 500;
   }
   .divider {
@@ -157,7 +157,7 @@
     gap: 10px;
   }
   .subsection-title {
-    font-size: 14px;
+    font-size: calc(var(--ui-font, 14px) * 14 / 14);
     font-weight: 600;
     margin: 0;
   }
@@ -178,21 +178,22 @@
     gap: 8px;
   }
   .version-label {
-    font-size: 12px;
+    font-size: calc(var(--ui-font, 14px) * 12 / 14);
     color: var(--text-secondary);
   }
   .version-value {
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 600;
     font-family: monospace;
   }
   .update-actions {
+    flex-wrap: wrap;
     display: flex;
     align-items: center;
     gap: 10px;
   }
   .update-msg {
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
   }
   .update-ok {
     color: var(--success);

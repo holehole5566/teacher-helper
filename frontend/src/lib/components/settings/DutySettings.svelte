@@ -111,21 +111,23 @@
     gap: 4px;
   }
   .section-title {
-    font-size: 16px;
+    font-size: calc(var(--ui-font, 14px) * 16 / 14);
     font-weight: 600;
     margin: 0;
   }
   .section-desc {
-    font-size: 12px;
+    font-size: calc(var(--ui-font, 14px) * 12 / 14);
     color: var(--text-secondary);
     margin-bottom: 16px;
   }
   .form-row {
+    flex-wrap: wrap;
     display: flex;
     gap: 16px;
   }
   .form-row .form-group {
-    flex: 1;
+    flex: 1 1 180px;
+    min-width: 0;
   }
   .form-actions {
     display: flex;
@@ -135,12 +137,12 @@
   }
   .save-btn {
     padding: 10px 28px;
-    font-size: 14px;
+    font-size: calc(var(--ui-font, 14px) * 14 / 14);
     font-weight: 600;
   }
   .save-ok {
     color: var(--success);
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 500;
   }
 </style>

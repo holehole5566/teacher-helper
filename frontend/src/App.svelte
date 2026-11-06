@@ -7,6 +7,7 @@
   import PasswordModal from './lib/components/PasswordModal.svelte';
   import DraftFeedback from './lib/components/DraftFeedback.svelte';
   import { requestNavigation, saving, leavePrompt } from './lib/stores/draft';
+  import ContactBookPage from './lib/pages/ContactBookPage.svelte';
   import HomePage from './lib/pages/HomePage.svelte';
   import StudentsPage from './lib/pages/StudentsPage.svelte';
   import SettingsPage from './lib/pages/SettingsPage.svelte';
@@ -21,6 +22,10 @@
   let homeRef: HomePage;
   let showCountdown = false;
   let showDisplay = false;
+  let contactDisplay = false;
+  let contactDate = '';
+  let homeDate = '';
+  function showContact(date: string) { contactDate = date; contactDisplay = true; enterDisplayMode(); }
   let countdownTriggerTime = '';
 
   function onCountdownTrigger(triggerTime: string) {
@@ -73,7 +78,7 @@
       return;
     }
     if (page === 'display') {
-      requestNavigation(() => { enterDisplayMode(); });
+      requestNavigation(() => { contactDisplay = false; enterDisplayMode(); });
       return;
     }
     if (page === currentPage) return;
@@ -100,15 +105,18 @@
 {/if}
 
 {#if showDisplay}
-  <DisplayMode />
+  <DisplayMode contact={contactDisplay} date={contactDisplay ? contactDate : homeDate} onDateChange={(date) => homeDate = date} onExit={exitDisplayMode} />
 {:else}
+  <div class="app-shell">
   <div class="navigation" inert={$saving || $leavePrompt}>
     <Sidebar {currentPage} onNavigate={handleNavigate} />
   </div>
 
   <main class="main-content" inert={$saving || $leavePrompt}>
     {#if currentPage === 'home'}
-      <HomePage bind:this={homeRef} />
+      <HomePage bind:this={homeRef} bind:selectedDate={homeDate} />
+    {:else if currentPage === 'contactBook'}
+      <ContactBookPage initialDate={contactDate} onDisplay={showContact} />
     {:else if currentPage === 'students'}
       <StudentsPage />
     {:else if currentPage === 'settings'}
@@ -121,13 +129,26 @@
       <MissingHomeworkPage />
     {/if}
   </main>
+  </div>
 {/if}
 
 <style>
-  .navigation { height: 100%; }
+  .app-shell {
+    --ui-font: clamp(14px, calc(10px + 0.35vw), 20px);
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    font-size: var(--ui-font);
+  }
+  .navigation { height: 100%; flex-shrink: 0; min-height: 0; }
   .main-content {
     flex: 1;
     display: flex;
     overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+    container: workspace / inline-size;
   }
 </style>

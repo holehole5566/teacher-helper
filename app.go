@@ -14,11 +14,13 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strings"
 	"sync"
 	"teacher-wails/internal/models"
 	"teacher-wails/internal/services"
+	"teacher-wails/internal/utils"
 	"time"
 
 	selfupdate "github.com/creativeprojects/go-selfupdate"
@@ -27,6 +29,7 @@ import (
 
 // App is the main application struct bound to the frontend.
 type App struct {
+	dailyMu         sync.Mutex
 	ctx             context.Context
 	dh              *services.DataHandler
 	sm              *services.StudentManager
@@ -101,6 +104,10 @@ func (a *App) startup(ctx context.Context) {
 	a.dc = services.NewDutyCalculator(a.dh, a.sm)
 	a.se = services.NewScheduleExporter(a.dc)
 
+	if err := a.refreshDailyAfter(nil); err != nil {
+		log.Printf("每日快照初始化失敗: %v", err)
+	}
+	go a.dailyWatcher()
 	go a.countdownWatcher()
 }
 
@@ -180,7 +187,7 @@ func (a *App) AddStudent(seatNumber int, name string) error {
 	if err := a.checkWriteAuth(); err != nil {
 		return err
 	}
-	return a.sm.AddStudent(seatNumber, name)
+	return a.refreshDailyAfter(a.sm.AddStudent(seatNumber, name))
 }
 
 // DeleteStudent removes a student by seat number.
@@ -188,7 +195,7 @@ func (a *App) DeleteStudent(seatNumber int) error {
 	if err := a.checkWriteAuth(); err != nil {
 		return err
 	}
-	return a.sm.DeleteStudent(seatNumber)
+	return a.refreshDailyAfter(a.sm.DeleteStudent(seatNumber))
 }
 
 // ToggleDuty toggles the duty participation flag for a student.
@@ -196,7 +203,7 @@ func (a *App) ToggleDuty(seatNumber int) error {
 	if err := a.checkWriteAuth(); err != nil {
 		return err
 	}
-	return a.sm.ToggleDuty(seatNumber)
+	return a.refreshDailyAfter(a.sm.ToggleDuty(seatNumber))
 }
 
 // ToggleLunch toggles the lunch participation flag for a student.
@@ -204,7 +211,7 @@ func (a *App) ToggleLunch(seatNumber int) error {
 	if err := a.checkWriteAuth(); err != nil {
 		return err
 	}
-	return a.sm.ToggleLunch(seatNumber)
+	return a.refreshDailyAfter(a.sm.ToggleLunch(seatNumber))
 }
 
 // GetSettings returns the current settings.
@@ -221,7 +228,7 @@ func (a *App) SaveSettings(settings models.Settings) error {
 	if err := a.checkWriteAuth(); err != nil {
 		return err
 	}
-	return a.dh.SaveSettings(settings)
+	return a.refreshDailyAfter(a.dh.SaveSettings(settings))
 }
 
 // GetHolidays returns the holiday list.
@@ -248,7 +255,7 @@ func (a *App) AddHoliday(dateStr string) error {
 		}
 	}
 	holidays = append(holidays, dateStr)
-	return a.dh.SaveHolidays(holidays)
+	return a.refreshDailyAfter(a.dh.SaveHolidays(holidays))
 }
 
 // DeleteHoliday removes a date from the holiday list.
@@ -266,7 +273,7 @@ func (a *App) DeleteHoliday(dateStr string) error {
 			filtered = append(filtered, h)
 		}
 	}
-	return a.dh.SaveHolidays(filtered)
+	return a.refreshDailyAfter(a.dh.SaveHolidays(filtered))
 }
 
 // ClearHolidays removes all holidays.
@@ -274,7 +281,7 @@ func (a *App) ClearHolidays() error {
 	if err := a.checkWriteAuth(); err != nil {
 		return err
 	}
-	return a.dh.SaveHolidays([]string{})
+	return a.refreshDailyAfter(a.dh.SaveHolidays([]string{}))
 }
 
 // SyncHolidays fetches the current year's government holiday calendar from
@@ -315,7 +322,7 @@ func (a *App) SyncHolidays() (int, error) {
 	if err := a.dh.SaveHolidays(holidays); err != nil {
 		return 0, err
 	}
-	return added, nil
+	return added, a.refreshDailyAfter(nil)
 }
 
 // findHolidayCSVURL queries the data.gov.tw API for dataset 14718 and returns
@@ -445,7 +452,6 @@ func (a *App) ExportSchedule() (string, error) {
 	return filePath, nil
 }
 
-
 // SetFullscreen toggles the window fullscreen state.
 func (a *App) SetFullscreen(enabled bool) {
 	if enabled {
@@ -473,7 +479,7 @@ func (a *App) SaveTimetable(timetable [5][8]string) error {
 	if err := a.checkWriteAuth(); err != nil {
 		return err
 	}
-	return a.dh.SaveTimetable(timetable)
+	return a.refreshDailyAfter(a.dh.SaveTimetable(timetable))
 }
 
 // GetMissingHomework returns the missing homework records.
@@ -490,7 +496,7 @@ func (a *App) SaveMissingHomework(records []models.MissingHomework) error {
 	if err := a.checkWriteAuth(); err != nil {
 		return err
 	}
-	return a.dh.SaveMissingHomework(records)
+	return a.refreshDailyAfter(a.dh.SaveMissingHomework(records))
 }
 
 // SelectCountdownMusics opens a multi-file dialog for the user to pick MP3 files.
@@ -792,4 +798,155 @@ func (a *App) checkWriteAuth() error {
 		a.authorizedWrite = false
 	}
 	return nil
+}
+
+// GetDailyOverview freezes previous calendar days and refreshes today's values.
+func (a *App) GetDailyOverview(date string) (services.DailyRecord, error) {
+	a.dailyMu.Lock()
+	defer a.dailyMu.Unlock()
+	return a.getDailyOverview(date)
+}
+
+func (a *App) getDailyOverview(date string) (services.DailyRecord, error) {
+	var result services.DailyRecord
+	if _, err := utils.ParseDate(date); err != nil {
+		return result, err
+	}
+	today := utils.FormatDate(time.Now())
+	if date > today || date < utils.FormatDate(time.Now().AddDate(0, 0, -6)) {
+		return result, fmt.Errorf("日期超出保留範圍")
+	}
+	if date != today {
+		return a.dh.GetDailyRecord(date)
+	}
+	config, err := a.dh.LoadConfig()
+	if err != nil {
+		return result, err
+	}
+	duty, err := a.dc.GetTodayDuty()
+	if err != nil {
+		return result, err
+	}
+	homework, err := a.dh.GetMissingHomework()
+	if err != nil {
+		return result, err
+	}
+	err = a.dh.UpdateDailyData(func(data *services.DailyData) error {
+		record := data.Records[date]
+		if record.ManualDuty {
+			duty.DutyStudents = record.Duty.DutyStudents
+		}
+		if record.ManualLunch {
+			duty.LunchAssignments = record.Duty.LunchAssignments
+		}
+		// Copy yesterday's announcement into today's snapshot before retention cleanup.
+		// Historical reads return this frozen value, even after yesterday expires.
+		parsedDate, _ := utils.ParseDate(date)
+		previousDate := utils.FormatDate(parsedDate.AddDate(0, 0, -1))
+		record.ReviewFromYesterday = data.Records[previousDate].NextDayReview
+		record.Date = date
+		record.Duty = duty
+		record.Students = config.Students
+		record.Timetable = config.Timetable
+		record.PeriodTimes = config.Settings.PeriodTimes
+		record.MissingHomework = homework
+		record.LayoutVersion = 1
+		record.UpdatedAt = time.Now().Format(time.RFC3339)
+		if record.ContactItems == nil {
+			record.ContactItems = []string{}
+		}
+		data.Records[date] = record
+		result = record
+		return nil
+	})
+	return result, err
+}
+
+func (a *App) SaveContactBook(date string, items []string, review string, nextDayReview string) error {
+	a.dailyMu.Lock()
+	defer a.dailyMu.Unlock()
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
+	if date != utils.FormatDate(time.Now()) {
+		return fmt.Errorf("只能編輯今天的聯絡簿")
+	}
+	if _, err := a.getDailyOverview(date); err != nil {
+		return err
+	}
+	return a.dh.UpdateDailyData(func(data *services.DailyData) error {
+		record := data.Records[date]
+		record.ContactItems = []string{}
+		for _, item := range items {
+			if trimmed := strings.TrimSpace(item); trimmed != "" {
+				record.ContactItems = append(record.ContactItems, trimmed)
+			}
+		}
+		record.MorningReview = strings.TrimSpace(review)
+		record.NextDayReview = strings.TrimSpace(nextDayReview)
+		record.UpdatedAt = time.Now().Format(time.RFC3339)
+		data.Records[date] = record
+		return nil
+	})
+}
+
+func (a *App) SaveDailyAssignments(date string, duty []models.Student, lunch []models.LunchAssignment, reset bool) error {
+	a.dailyMu.Lock()
+	defer a.dailyMu.Unlock()
+	if date != utils.FormatDate(time.Now()) {
+		return fmt.Errorf("日期已變更，請重新載入")
+	}
+	if _, err := a.getDailyOverview(date); err != nil {
+		return err
+	}
+	calculated, err := a.dc.GetTodayDuty()
+	if err != nil {
+		return err
+	}
+	return a.dh.UpdateDailyData(func(data *services.DailyData) error {
+		record := data.Records[date]
+		record.ManualDuty = !reset && !reflect.DeepEqual(duty, calculated.DutyStudents)
+		record.ManualLunch = !reset && !reflect.DeepEqual(lunch, calculated.LunchAssignments)
+		if !reset {
+			record.Duty.DutyStudents = duty
+			record.Duty.LunchAssignments = lunch
+		} else {
+			record.Duty = calculated
+		}
+		record.UpdatedAt = time.Now().Format(time.RFC3339)
+		data.Records[date] = record
+		return nil
+	})
+}
+
+func (a *App) refreshDailyAfter(err error) error {
+	if err != nil {
+		return err
+	}
+	_, err = a.GetDailyOverview(utils.FormatDate(time.Now()))
+	return err
+}
+func (a *App) dailyWatcher() {
+	ticker := time.NewTicker(time.Minute)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-a.ctx.Done():
+			return
+		case <-ticker.C:
+			if err := a.refreshDailyAfter(nil); err != nil {
+				log.Printf("每日快照更新失敗: %v", err)
+			}
+		}
+	}
+}
+
+// GetDailyDates returns the seven calendar dates in local time, newest first.
+func (a *App) GetDailyDates() []string {
+	dates := make([]string, 7)
+	now := time.Now()
+	for i := range dates {
+		dates[i] = utils.FormatDate(now.AddDate(0, 0, -i))
+	}
+	return dates
 }

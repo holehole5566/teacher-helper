@@ -102,22 +102,23 @@
     gap: 4px;
   }
   .section-title {
-    font-size: 16px;
+    font-size: calc(var(--ui-font, 14px) * 16 / 14);
     font-weight: 600;
     margin: 0;
   }
   .section-desc {
-    font-size: 12px;
+    font-size: calc(var(--ui-font, 14px) * 12 / 14);
     color: var(--text-secondary);
     margin-bottom: 16px;
   }
   .period-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
     gap: 8px;
     margin-top: 6px;
   }
   .period-input {
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -127,7 +128,7 @@
     padding: 8px 12px;
   }
   .period-label {
-    font-size: 12px;
+    font-size: calc(var(--ui-font, 14px) * 12 / 14);
     font-weight: 600;
     color: var(--text-secondary);
     white-space: nowrap;
@@ -135,8 +136,9 @@
   }
   .period-input input {
     flex: 1;
+    min-width: 0;
     padding: 4px 6px;
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     border: none;
     background: transparent;
   }
@@ -154,14 +156,14 @@
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 6px 12px;
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 500;
   }
   .tag-remove {
     background: none;
     border: none;
     padding: 0 2px;
-    font-size: 16px;
+    font-size: calc(var(--ui-font, 14px) * 16 / 14);
     color: var(--danger);
     cursor: pointer;
     line-height: 1;
@@ -177,12 +179,12 @@
   }
   .save-btn {
     padding: 10px 28px;
-    font-size: 14px;
+    font-size: calc(var(--ui-font, 14px) * 14 / 14);
     font-weight: 600;
   }
   .save-ok {
     color: var(--success);
-    font-size: 13px;
+    font-size: calc(var(--ui-font, 14px) * 13 / 14);
     font-weight: 500;
   }
 </style>

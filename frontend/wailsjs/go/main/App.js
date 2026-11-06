@@ -50,6 +50,14 @@ export function GetCurrentVersion() {
   return window['go']['main']['App']['GetCurrentVersion']();
 }
 
+export function GetDailyDates() {
+  return window['go']['main']['App']['GetDailyDates']();
+}
+
+export function GetDailyOverview(arg1) {
+  return window['go']['main']['App']['GetDailyOverview'](arg1);
+}
+
 export function GetHolidays() {
   return window['go']['main']['App']['GetHolidays']();
 }
@@ -80,6 +88,14 @@ export function HasPassword() {
 
 export function ReportError(arg1) {
   return window['go']['main']['App']['ReportError'](arg1);
+}
+
+export function SaveContactBook(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['SaveContactBook'](arg1, arg2, arg3, arg4);
+}
+
+export function SaveDailyAssignments(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['SaveDailyAssignments'](arg1, arg2, arg3, arg4);
 }
 
 export function SaveMissingHomework(arg1) {
