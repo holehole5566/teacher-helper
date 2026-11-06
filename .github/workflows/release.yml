@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -11,6 +12,7 @@ permissions:
 jobs:
   build-windows:
     name: Build Windows (amd64)
+    if: github.event_name != 'workflow_dispatch'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,6 +45,7 @@ jobs:
 
   build-linux:
     name: Build Linux (amd64)
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -87,11 +90,90 @@ jobs:
           path: teacher-wails-linux-amd64.tar.gz
           if-no-files-found: error
 
+  build-macos:
+    name: Build macOS (universal)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
+
+      - name: Build macOS application
+        run: wails build -platform darwin/universal -ldflags "-X main.version=${{ github.ref_name }}"
+
+      - name: Import signing certificate
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+          echo "$MACOS_CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$RUNNER_TEMP/cert.p12" -P "$MACOS_CERT_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain-db
+          rm -f "$RUNNER_TEMP/cert.p12"
+
+      - name: Sign application
+        env:
+          MACOS_SIGN_IDENTITY: ${{ secrets.MACOS_SIGN_IDENTITY }}
+        run: |
+          codesign --force --deep --options runtime --timestamp \
+            --sign "$MACOS_SIGN_IDENTITY" build/bin/teacher-wails.app
+          codesign --verify --deep --strict --verbose=2 build/bin/teacher-wails.app
+
+      - name: Notarize application
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent build/bin/teacher-wails.app notarize.zip
+          xcrun notarytool submit notarize.zip \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_APP_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait --timeout 30m
+          xcrun stapler staple build/bin/teacher-wails.app
+          xcrun stapler validate build/bin/teacher-wails.app
+          rm -f notarize.zip
+
+      - name: Package macOS application
+        run: ditto -c -k --sequesterRsrc --keepParent build/bin/teacher-wails.app teacher-wails-macos-universal.zip
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: teacher-wails-macos-universal
+          path: teacher-wails-macos-universal.zip
+          if-no-files-found: error
+
   release:
     name: Create GitHub Release
+    if: github.ref_type == 'tag'
     needs:
       - build-windows
       - build-linux
+      - build-macos
     runs-on: ubuntu-latest
     steps:
       - name: Download build artifacts
