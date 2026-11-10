@@ -41,12 +41,13 @@ type Settings struct {
 
 // Config is the top-level JSON structure persisted to config.json.
 type Config struct {
-	Password        string            `json:"password"`
-	Students        []Student         `json:"students"`
-	Settings        Settings          `json:"settings"`
-	Holidays        []string          `json:"holidays"`
-	Timetable       [5][8]string      `json:"timetable"`
-	MissingHomework []MissingHomework `json:"missing_homework,omitempty"`
+	MidtermExams    map[string]MidtermExam `json:"midterm_exams,omitempty"`
+	Password        string                 `json:"password"`
+	Students        []Student              `json:"students"`
+	Settings        Settings               `json:"settings"`
+	Holidays        []string               `json:"holidays"`
+	Timetable       [5][8]string           `json:"timetable"`
+	MissingHomework []MissingHomework      `json:"missing_homework,omitempty"`
 }
 
 // LunchAssignment pairs a student with a meal bucket.
@@ -69,4 +70,12 @@ type TodayDutyResult struct {
 	IsWorkday        bool              `json:"isWorkday"`
 	DutyStudents     []Student         `json:"dutyStudents"`
 	LunchAssignments []LunchAssignment `json:"lunchAssignments"`
+}
+
+// MidtermExam stores a whole day's exam plan; nil attendance means not yet entered.
+type MidtermExam struct {
+	Date     string    `json:"date"`
+	Subjects [8]string `json:"subjects"`
+	Expected *int      `json:"expected"`
+	Actual   *int      `json:"actual"`
 }

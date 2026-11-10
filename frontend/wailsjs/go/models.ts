@@ -1,15 +1,15 @@
 export namespace main {
-	
+
 	export class UpdateResult {
 	    has_update: boolean;
 	    current_version: string;
 	    latest_version: string;
 	    release_notes: string;
-	
+
 	    static createFrom(source: any = {}) {
 	        return new UpdateResult(source);
 	    }
-	
+
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.has_update = source["has_update"];
@@ -22,16 +22,16 @@ export namespace main {
 }
 
 export namespace models {
-	
+
 	export class CountdownTimeMusic {
 	    time: string;
 	    mode: string;
 	    index: number;
-	
+
 	    static createFrom(source: any = {}) {
 	        return new CountdownTimeMusic(source);
 	    }
-	
+
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.time = source["time"];
@@ -44,11 +44,11 @@ export namespace models {
 	    name: string;
 	    duty_enabled: boolean;
 	    lunch_enabled: boolean;
-	
+
 	    static createFrom(source: any = {}) {
 	        return new Student(source);
 	    }
-	
+
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.seat_number = source["seat_number"];
@@ -60,17 +60,17 @@ export namespace models {
 	export class LunchAssignment {
 	    student: Student;
 	    bucket: string;
-	
+
 	    static createFrom(source: any = {}) {
 	        return new LunchAssignment(source);
 	    }
-	
+
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.student = this.convertValues(source["student"], Student);
 	        this.bucket = source["bucket"];
 	    }
-	
+
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
 		    if (!a) {
 		        return a;
@@ -89,15 +89,33 @@ export namespace models {
 		    return a;
 		}
 	}
+	export class MidtermExam {
+	    date: string;
+	    subjects: string[];
+	    expected?: number;
+	    actual?: number;
+
+	    static createFrom(source: any = {}) {
+	        return new MidtermExam(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.date = source["date"];
+	        this.subjects = source["subjects"];
+	        this.expected = source["expected"];
+	        this.actual = source["actual"];
+	    }
+	}
 	export class MissingHomework {
 	    subject: string;
 	    students: number[];
 	    note: string;
-	
+
 	    static createFrom(source: any = {}) {
 	        return new MissingHomework(source);
 	    }
-	
+
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.subject = source["subject"];
@@ -108,11 +126,11 @@ export namespace models {
 	export class MusicTrack {
 	    path: string;
 	    in_random: boolean;
-	
+
 	    static createFrom(source: any = {}) {
 	        return new MusicTrack(source);
 	    }
-	
+
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.path = source["path"];
@@ -134,11 +152,11 @@ export namespace models {
 	    countdown_time_music_map: CountdownTimeMusic[];
 	    discord_webhook: string;
 	    audio_output_device: string;
-	
+
 	    static createFrom(source: any = {}) {
 	        return new Settings(source);
 	    }
-	
+
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.semester_start_date = source["semester_start_date"];
@@ -156,7 +174,7 @@ export namespace models {
 	        this.discord_webhook = source["discord_webhook"];
 	        this.audio_output_device = source["audio_output_device"];
 	    }
-	
+
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
 		    if (!a) {
 		        return a;
@@ -175,18 +193,18 @@ export namespace models {
 		    return a;
 		}
 	}
-	
+
 	export class TodayDutyResult {
 	    date: string;
 	    displayDate: string;
 	    isWorkday: boolean;
 	    dutyStudents: Student[];
 	    lunchAssignments: LunchAssignment[];
-	
+
 	    static createFrom(source: any = {}) {
 	        return new TodayDutyResult(source);
 	    }
-	
+
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.date = source["date"];
@@ -195,7 +213,7 @@ export namespace models {
 	        this.dutyStudents = this.convertValues(source["dutyStudents"], Student);
 	        this.lunchAssignments = this.convertValues(source["lunchAssignments"], LunchAssignment);
 	    }
-	
+
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
 		    if (!a) {
 		        return a;

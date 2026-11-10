@@ -7,6 +7,7 @@
   import PasswordModal from './lib/components/PasswordModal.svelte';
   import DraftFeedback from './lib/components/DraftFeedback.svelte';
   import { requestNavigation, saving, leavePrompt } from './lib/stores/draft';
+  import MidtermPage from './lib/pages/MidtermPage.svelte';
   import ContactBookPage from './lib/pages/ContactBookPage.svelte';
   import HomePage from './lib/pages/HomePage.svelte';
   import StudentsPage from './lib/pages/StudentsPage.svelte';
@@ -23,9 +24,12 @@
   let showCountdown = false;
   let showDisplay = false;
   let contactDisplay = false;
+  let examDisplay = false;
+  let examDate = '';
+  function showExam(date: string) { examDate = date; examDisplay = true; contactDisplay = false; enterDisplayMode(); }
   let contactDate = '';
   let homeDate = '';
-  function showContact(date: string) { contactDate = date; contactDisplay = true; enterDisplayMode(); }
+  function showContact(date: string) { contactDate = date; contactDisplay = true; examDisplay = false; enterDisplayMode(); }
   let countdownTriggerTime = '';
 
   function onCountdownTrigger(triggerTime: string) {
@@ -78,7 +82,7 @@
       return;
     }
     if (page === 'display') {
-      requestNavigation(() => { contactDisplay = false; enterDisplayMode(); });
+      requestNavigation(() => { contactDisplay = false; examDisplay = false; enterDisplayMode(); });
       return;
     }
     if (page === currentPage) return;
@@ -105,7 +109,7 @@
 {/if}
 
 {#if showDisplay}
-  <DisplayMode contact={contactDisplay} date={contactDisplay ? contactDate : homeDate} onDateChange={(date) => homeDate = date} onExit={exitDisplayMode} />
+  <DisplayMode exam={examDisplay} contact={contactDisplay} date={examDisplay ? examDate : contactDisplay ? contactDate : homeDate} onDateChange={(date) => homeDate = date} onExit={exitDisplayMode} />
 {:else}
   <div class="app-shell">
   <div class="navigation" inert={$saving || $leavePrompt}>
@@ -117,6 +121,8 @@
       <HomePage bind:this={homeRef} bind:selectedDate={homeDate} />
     {:else if currentPage === 'contactBook'}
       <ContactBookPage initialDate={contactDate} onDisplay={showContact} />
+    {:else if currentPage === 'midterm'}
+      <MidtermPage initialDate={examDate} onDisplay={showExam} />
     {:else if currentPage === 'students'}
       <StudentsPage />
     {:else if currentPage === 'settings'}

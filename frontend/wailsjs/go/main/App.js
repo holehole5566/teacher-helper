@@ -62,6 +62,10 @@ export function GetHolidays() {
   return window['go']['main']['App']['GetHolidays']();
 }
 
+export function GetMidtermExam(arg1) {
+  return window['go']['main']['App']['GetMidtermExam'](arg1);
+}
+
 export function GetMissingHomework() {
   return window['go']['main']['App']['GetMissingHomework']();
 }
@@ -96,6 +100,10 @@ export function SaveContactBook(arg1, arg2, arg3, arg4) {
 
 export function SaveDailyAssignments(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['SaveDailyAssignments'](arg1, arg2, arg3, arg4);
+}
+
+export function SaveMidtermExam(arg1) {
+  return window['go']['main']['App']['SaveMidtermExam'](arg1);
 }
 
 export function SaveMissingHomework(arg1) {

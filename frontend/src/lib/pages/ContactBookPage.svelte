@@ -65,7 +65,7 @@
   onDestroy(() => clearInterval(clockInterval));
 </script>
 
-<div class="page contact-page" class:presentation>
+<div class="page adaptive-page contact-page" class:presentation>
   <div class="heading">
     <div><h2 class="page-title">聯絡簿</h2><p class="description">{presentation ? date : '每日聯絡事項與明日複習考，保留最近七個日曆天。'}</p></div>
     {#if !presentation}<button class="btn-primary" disabled={!ready || !loaded || $saving} on:click={() => requestNavigation(() => onDisplay(date))}><Monitor size={16} /> 獨立展示</button>{/if}
@@ -120,7 +120,7 @@
   button { display:inline-flex; align-items:center; gap:8px; min-height:36px; }
   button:disabled { opacity:.45; cursor:default; }
   form,.reading { max-width:960px; }
-  .editor-section { padding:20px 0; border-top:1px solid var(--border); }
+  .editor-section { padding:var(--page-gap) 0; border-top:1px solid var(--border); }
   label,h3 { font-size: calc(var(--ui-font, 14px) * 16 / 14); font-weight:600; }
   textarea { display:block; width:100%; resize:vertical; border:1px solid var(--border); border-radius:8px; padding:12px; font:inherit; color:var(--text-primary); background:var(--bg-secondary); line-height:1.7; }
   textarea:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
@@ -134,21 +134,36 @@
   .empty { padding:24px 0; }
   .save-bar { border-top:1px solid var(--border); padding:20px 0; }
   .error { color:#b91c1c; padding:12px 0; }
-  .reading { background:var(--bg-secondary); border-radius:12px; padding:28px; margin-top:16px; overflow-wrap:anywhere; }
+  .reading { background:var(--bg-secondary); border-radius:12px; padding:clamp(16px,2.5vh,28px); margin-top:var(--page-gap); overflow-wrap:anywhere; }
   .reading p, .reading li { white-space:pre-wrap; }
   .reading ol { padding-left:28px; margin-top:16px; }
   .reading li { padding:10px 0; border-bottom:1px solid var(--border); }
-  .review { background:#eff6ff; color:#1e3a8a; padding:20px; border-radius:12px; margin-bottom:28px; }
+  .review { background:#eff6ff; color:#1e3a8a; padding:clamp(12px,2vh,20px); border-radius:12px; margin-bottom:var(--page-gap); }
   .review h3 { margin-bottom:8px; }
-  .presentation .reading { max-width:none; font-size:clamp(24px,3vw,44px); }
-  .presentation h3 { font-size: calc(var(--ui-font, 14px) * 24 / 14); }
+  .presentation .reading { max-width:none; font-size:clamp(26px,min(4vw,5vh),64px); line-height:1.5; }
+  .presentation h3 { font-size:clamp(22px,min(3vw,4vh),48px); }
+  .presentation .reading ol { padding-left:1.5em; }
+  .presentation .reading li { padding:0.3em 0; }
+  .presentation .reading .description { font-size:0.65em; }
+  .presentation .page-title { font-size:clamp(24px,min(3vw,4vh),44px); }
+  @media(max-width:700px) { .presentation .reading { padding:18px; font-size:clamp(28px,4vw,40px); } }
   .contact-page:not(.presentation) form, .contact-page:not(.presentation) .reading { max-width: none; }
   @container workspace (max-width: 620px) {
     .item-editor { grid-template-columns: 20px minmax(0, 1fr); }
     .item-actions { grid-column: 2; }
   }
   @container workspace (min-width: 1100px) {
-    form { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); column-gap: 24px; align-items: start; }
+    .contact-page:not(.presentation) form { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); column-gap: 24px; align-items: start; }
     .save-bar { grid-column: 1 / -1; }
+  }
+  .editor-section, .reading, .item-editor { min-width:0; }
+  @media(max-height:700px) {
+    .item-editor { margin-top:10px; gap:8px; }
+    textarea { padding:8px; line-height:1.5; }
+    .presentation .reading li { padding:0.15em 0; }
+  }
+  @media(max-width:520px) {
+    .item-editor { grid-template-columns:20px minmax(0,1fr); }
+    .item-actions { grid-column:2; }
   }
 </style>

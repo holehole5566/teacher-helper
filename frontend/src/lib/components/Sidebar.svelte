@@ -11,6 +11,7 @@
   const navItems = [
     { id: 'home', label: '今日值日', icon: 'ClipboardList' },
     { id: 'contactBook', label: '聯絡簿', icon: 'BookOpen' },
+    { id: 'midterm', label: '期中考', icon: 'FileText' },
     { id: 'timetable', label: '課表設定', icon: 'BookOpen' },
     { id: 'students', label: '學生管理', icon: 'Users' },
     { id: 'settings', label: '設定', icon: 'Settings' },

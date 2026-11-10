@@ -13,6 +13,7 @@
   let today = '';
   let error = '';
   let reviewFromYesterday = '';
+  let contactItems: string[] = [];
   let busy = false;
   let touchX = 0;
   let touchY = 0;
@@ -55,6 +56,7 @@
       periodTimes = record.period_times || [];
       missingHomework = record.missing_homework || [];
       reviewFromYesterday = record.review_from_yesterday || '';
+      contactItems = record.contact_items || [];
       const tt = record.timetable;
       const dow = new Date(date + "T12:00:00").getDay();
       todayClasses = [];
@@ -167,12 +169,21 @@
   </div>
 
   {#if error}<p class="error-message" role="alert">{error}</p>{/if}
-  {#if !loading && !error && reviewFromYesterday}
-    <section class="card scheduled-review" aria-labelledby="scheduled-review-title">
-      <h3 id="scheduled-review-title">今日複習考</h3>
-      <p class="review-source">前一天聯絡簿的複習考提醒</p>
-      <p class="review-content">{reviewFromYesterday}</p>
-    </section>
+  {#if !loading && !error && !isWorkday}
+    <div class="daily-notices">
+      <section class="card scheduled-review" aria-labelledby="scheduled-review-title">
+        <h3 id="scheduled-review-title">今日複習考</h3>
+        <p class="review-source">前一天聯絡簿的複習考提醒</p>
+        {#if reviewFromYesterday}<p class="review-content">{reviewFromYesterday}</p>{:else}<p class="no-data">尚無複習考提醒</p>{/if}
+      </section>
+      <section class="card daily-homework" aria-labelledby="daily-homework-title">
+        <h3 id="daily-homework-title">今日作業與提醒</h3>
+        <p class="review-source">當天聯絡簿的聯絡事項</p>
+        {#if contactItems.length}
+          <ol>{#each contactItems as item}<li>{item}</li>{/each}</ol>
+        {:else}<p class="no-data">尚無作業與提醒，可至聯絡簿新增。</p>{/if}
+      </section>
+    </div>
   {/if}
   {#if loading}
     <div class="empty-state">載入中...</div>
@@ -213,6 +224,21 @@
 
       <!-- Right: duty + lunch compact -->
       <div class="right-panel">
+    <div class="daily-notices">
+      <section class="card scheduled-review" aria-labelledby="scheduled-review-title">
+        <h3 id="scheduled-review-title">今日複習考</h3>
+        <p class="review-source">前一天聯絡簿的複習考提醒</p>
+        {#if reviewFromYesterday}<p class="review-content">{reviewFromYesterday}</p>{:else}<p class="no-data">尚無複習考提醒</p>{/if}
+      </section>
+      <section class="card daily-homework" aria-labelledby="daily-homework-title">
+        <h3 id="daily-homework-title">今日作業與提醒</h3>
+        <p class="review-source">當天聯絡簿的聯絡事項</p>
+        {#if contactItems.length}
+          <ol>{#each contactItems as item}<li>{item}</li>{/each}</ol>
+        {:else}<p class="no-data">尚無作業與提醒，可至聯絡簿新增。</p>{/if}
+      </section>
+    </div>
+
         <div class="card compact-card duty-accent">
           <div class="section-header">
             <span class="section-icon"><Brush size={18} /></span>
@@ -282,11 +308,18 @@
 </div>
 
 <style>
-  .scheduled-review { margin-bottom:16px; }
-  .scheduled-review h3 { font-size: calc(var(--ui-font, 14px) * 18 / 14); margin-bottom:4px; }
-  .review-source { font-size: calc(var(--ui-font, 14px) * 13 / 14); color:var(--text-secondary); margin-bottom:12px; }
-  .review-content { font-size: calc(var(--ui-font, 14px) * 20 / 14); font-weight:600; white-space:pre-wrap; overflow-wrap:anywhere; }
-  .presentation .review-content { font-size: calc(var(--ui-font, 14px) * 28 / 14); }
+  .daily-notices { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.7fr); gap:12px; margin-bottom:12px; }
+  .daily-notices > section { min-width:0; padding:12px 16px; }
+  .daily-notices h3 { font-size:16px; margin-bottom:4px; }
+  .daily-homework ol { padding-left:1.5em; max-height:100px; overflow-y:auto; scrollbar-width:thin; }
+  .daily-homework li { font-size:16px; line-height:1.5; padding:1px 0; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .review-source { font-size:12px; color:var(--text-secondary); margin-bottom:6px; }
+  .review-content { font-size:16px; line-height:1.5; font-weight:600; white-space:pre-wrap; overflow-wrap:anywhere; max-height:100px; overflow-y:auto; scrollbar-width:thin; }
+  .daily-notices .no-data { font-size:14px; }
+  .presentation .daily-notices h3 { font-size:18px; }
+  .presentation .daily-homework li, .presentation .review-content { font-size:clamp(16px,1.25vw,22px); }
+  @media(max-width:700px) { .daily-notices { grid-template-columns:minmax(0, 1fr); } }
+  @container workspace (max-width:800px) { .daily-notices { grid-template-columns:minmax(0, 1fr); } }
   .error-message { color:#b91c1c; padding:12px 0; }
   .clock { margin-left:auto; font-variant-numeric:tabular-nums; }
   .presentation { font-size: calc(var(--ui-font, 14px) * 20 / 14); }
@@ -535,5 +568,29 @@
   @container workspace (max-width: 620px) {
     .home-grid { grid-template-columns: minmax(0, 1fr); }
     .date-header { gap: 8px 12px; }
+  }
+  /* Keep the timetable beside notices, with each column using the available height. */
+  .right-panel .daily-notices { grid-template-columns:minmax(0, 1fr); margin-bottom:0; gap:10px; }
+  .right-panel { min-width:0; }
+  @media (min-width: 851px) {
+    .page { display:flex; flex-direction:column; min-height:0; overflow:hidden; padding:clamp(12px, 2vh, 24px); }
+    .page:not(.presentation) { --ui-font:clamp(14px, min(1.2vw, 2vh), 22px); }
+    .date-header { flex-shrink:0; margin-bottom:clamp(8px, 1.5vh, 20px); }
+    .date-header .page-title { margin-bottom:0; }
+    .home-grid, .presentation .home-grid { flex:1; min-height:0; grid-template-columns:minmax(0, 1.2fr) minmax(280px, 1fr); overflow:hidden; }
+    .timetable-section { display:flex; flex-direction:column; min-height:0; padding:clamp(12px, 2vh, 24px); }
+    .class-list { flex:1; min-height:0; display:grid; grid-auto-rows:minmax(36px, 1fr); gap:clamp(2px, .5vh, 8px); overflow-y:auto; }
+    .page .class-row { padding:clamp(2px, .6vh, 10px) 12px; }
+    .page .subject { font-size:clamp(16px, min(2vw, 3vh), 30px); }
+    .page .period-num { width:clamp(28px, 4vh, 44px); height:clamp(28px, 4vh, 44px); }
+    .right-panel { overflow-y:auto; scrollbar-width:thin; padding:0 4px 4px 0; gap:clamp(8px, 1.3vh, 14px); }
+    .right-panel > * { flex-shrink:0; }
+    .daily-notices > section { padding:clamp(8px, 1.2vh, 14px) 14px; }
+    .daily-homework ol, .review-content { max-height:clamp(48px, 12vh, 130px); }
+  }
+  @media (min-width:851px) and (max-height:700px) {
+    .right-panel .review-source { display:none; }
+    .right-panel .daily-notices h3 { font-size:15px; }
+    .right-panel .daily-homework li, .right-panel .review-content { font-size:15px; }
   }
 </style>

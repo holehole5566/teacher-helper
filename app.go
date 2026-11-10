@@ -950,3 +950,15 @@ func (a *App) GetDailyDates() []string {
 	}
 	return dates
 }
+
+// GetMidtermExam returns the exam plan for the requested date.
+func (a *App) GetMidtermExam(date string) (models.MidtermExam, error) {
+	return a.dh.GetMidtermExam(date)
+}
+
+func (a *App) SaveMidtermExam(record models.MidtermExam) error {
+	if err := a.checkWriteAuth(); err != nil {
+		return err
+	}
+	return a.dh.SaveMidtermExam(record)
+}

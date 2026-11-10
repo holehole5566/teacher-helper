@@ -29,3 +29,6 @@ docs/
 # Daily history and migration backups are local classroom data
 data/data.json
 data/config.json.before-daily-split.bak
+
+# Local snapshot before demo seeding
+data/data.before-demo.json

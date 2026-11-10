@@ -34,6 +34,8 @@ export function GetDailyOverview(arg1:string):Promise<services.DailyRecord>;
 
 export function GetHolidays():Promise<Array<string>>;
 
+export function GetMidtermExam(arg1:string):Promise<models.MidtermExam>;
+
 export function GetMissingHomework():Promise<Array<models.MissingHomework>>;
 
 export function GetSettings():Promise<models.Settings>;
@@ -51,6 +53,8 @@ export function ReportError(arg1:string):Promise<void>;
 export function SaveContactBook(arg1:string,arg2:Array<string>,arg3:string,arg4:string):Promise<void>;
 
 export function SaveDailyAssignments(arg1:string,arg2:Array<models.Student>,arg3:Array<models.LunchAssignment>,arg4:boolean):Promise<void>;
+
+export function SaveMidtermExam(arg1:models.MidtermExam):Promise<void>;
 
 export function SaveMissingHomework(arg1:Array<models.MissingHomework>):Promise<void>;
 

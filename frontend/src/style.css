@@ -246,3 +246,22 @@ tr:hover td {
 }
 
 .app-shell button svg { width: 1.25em; height: 1.25em; flex-shrink: 0; }
+
+/* Shared viewport sizing for the contact book and exam editor / presentation. */
+.adaptive-page {
+  --ui-font: clamp(14px, min(1.25vw, 2.2vh), 22px);
+  --page-gap: clamp(10px, 1.8vh, 24px);
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  padding: var(--page-gap);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  font-size: var(--ui-font);
+}
+.adaptive-page.presentation {
+  --ui-font: clamp(16px, min(1.7vw, 2.7vh), 28px);
+}
+.adaptive-page > .heading { margin-bottom: var(--page-gap); gap: var(--page-gap); }
+.adaptive-page .save-bar { gap: var(--page-gap); padding-block: var(--page-gap); }
+.adaptive-page button, .adaptive-page input, .adaptive-page textarea { max-width: 100%; }
