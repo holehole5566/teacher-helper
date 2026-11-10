@@ -67,7 +67,7 @@
 
 <div class="page adaptive-page contact-page" class:presentation>
   <div class="heading">
-    <div><h2 class="page-title">聯絡簿</h2><p class="description">{presentation ? date : '每日聯絡事項與明日複習考，保留最近七個日曆天。'}</p></div>
+    <div><h2 class="page-title">聯絡簿</h2><p class="description">{presentation ? date : '每日聯絡事項與下個上課日複習考，保留最近七個日曆天。'}</p></div>
     {#if !presentation}<button class="btn-primary" disabled={!ready || !loaded || $saving} on:click={() => requestNavigation(() => onDisplay(date))}><Monitor size={16} /> 獨立展示</button>{/if}
   </div>
   <HistoryNav {dates} {date} busy={!ready || $saving} onChange={changeDate} />
@@ -78,7 +78,7 @@
   {:else if presentation || historical}
     {#if historical}<p class="description">歷史快照・唯讀</p>{/if}
     <section class="reading">
-      {#if nextDayReview}<div class="review"><h3>明日複習考</h3><p>{nextDayReview}</p></div>{/if}
+      {#if nextDayReview}<div class="review"><h3>下個上課日複習考</h3><p>{nextDayReview}</p></div>{/if}
       <h3>聯絡事項</h3>
       {#if items.length}<ol>{#each items as item}<li>{item}</li>{/each}</ol>
       {:else}<p class="description">此日尚無聯絡事項</p>{/if}
@@ -87,8 +87,8 @@
     {#key date}
       <form use:draftGuard={{value: draft, ready, save}} on:submit|preventDefault={() => { save().catch(() => {}); }}>
         <section class="editor-section">
-          <label for="next-day-review">明日複習考</label>
-          <p class="description field-help" id="next-day-review-help">今天抄在聯絡簿，明天會顯示在首頁。沒有複習考可留白。</p>
+          <label for="next-day-review">下個上課日複習考</label>
+          <p class="description field-help" id="next-day-review-help">今天抄在聯絡簿，下個上課日會顯示在首頁，自動跳過週末與設定的假日。沒有複習考可留白。</p>
           <textarea id="next-day-review" rows="2" bind:value={nextDayReview} aria-describedby="next-day-review-help" placeholder="例如：數學第四單元複習考"></textarea>
         </section>
         <section class="editor-section">

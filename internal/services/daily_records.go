@@ -29,6 +29,7 @@ type DailyRecord struct {
 }
 
 type DailyData struct {
+	ReviewCarry     *ReviewAnnouncement      `json:"review_carry,omitempty"`
 	MissingHomework []models.MissingHomework `json:"missing_homework"`
 	Version         int                      `json:"version"`
 	Records         map[string]DailyRecord   `json:"records"`
@@ -46,6 +47,11 @@ func (dh *DataHandler) UpdateDailyData(update func(*DailyData) error) error {
 	if err := update(&data); err != nil {
 		return err
 	}
+	config, err := dh.loadConfigUnsafe()
+	if err != nil {
+		return err
+	}
+	data.preserveReview(time.Now(), config.Holidays)
 	cutoff := utils.FormatDate(time.Now().AddDate(0, 0, -6))
 	for date := range data.Records {
 		if date < cutoff {

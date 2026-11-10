@@ -839,11 +839,9 @@ func (a *App) getDailyOverview(date string) (services.DailyRecord, error) {
 		if record.ManualLunch {
 			duty.LunchAssignments = record.Duty.LunchAssignments
 		}
-		// Copy yesterday's announcement into today's snapshot before retention cleanup.
-		// Historical reads return this frozen value, even after yesterday expires.
+		// Freeze the preceding school day's reminder into today's snapshot.
 		parsedDate, _ := utils.ParseDate(date)
-		previousDate := utils.FormatDate(parsedDate.AddDate(0, 0, -1))
-		record.ReviewFromYesterday = data.Records[previousDate].NextDayReview
+		record.ReviewFromYesterday = data.SchoolDayReview(parsedDate, config.Holidays)
 		record.Date = date
 		record.Duty = duty
 		record.Students = config.Students

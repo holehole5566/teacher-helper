@@ -173,7 +173,7 @@
     <div class="daily-notices">
       <section class="card scheduled-review" aria-labelledby="scheduled-review-title">
         <h3 id="scheduled-review-title">今日複習考</h3>
-        <p class="review-source">前一天聯絡簿的複習考提醒</p>
+        <p class="review-source">前一個上課日聯絡簿的複習考提醒</p>
         {#if reviewFromYesterday}<p class="review-content">{reviewFromYesterday}</p>{:else}<p class="no-data">尚無複習考提醒</p>{/if}
       </section>
       <section class="card daily-homework" aria-labelledby="daily-homework-title">
@@ -227,7 +227,7 @@
     <div class="daily-notices">
       <section class="card scheduled-review" aria-labelledby="scheduled-review-title">
         <h3 id="scheduled-review-title">今日複習考</h3>
-        <p class="review-source">前一天聯絡簿的複習考提醒</p>
+        <p class="review-source">前一個上課日聯絡簿的複習考提醒</p>
         {#if reviewFromYesterday}<p class="review-content">{reviewFromYesterday}</p>{:else}<p class="no-data">尚無複習考提醒</p>{/if}
       </section>
       <section class="card daily-homework" aria-labelledby="daily-homework-title">
