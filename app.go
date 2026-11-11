@@ -863,9 +863,6 @@ func (a *App) getDailyOverview(date string) (services.DailyRecord, error) {
 func (a *App) SaveContactBook(date string, items []string, review string, nextDayReview string) error {
 	a.dailyMu.Lock()
 	defer a.dailyMu.Unlock()
-	if err := a.checkWriteAuth(); err != nil {
-		return err
-	}
 	if date != utils.FormatDate(time.Now()) {
 		return fmt.Errorf("只能編輯今天的聯絡簿")
 	}

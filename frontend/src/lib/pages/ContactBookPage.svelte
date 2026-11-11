@@ -2,7 +2,6 @@
   import { onMount, onDestroy } from 'svelte';
   import { Plus, Trash2, ArrowUp, ArrowDown, Save, Monitor } from 'lucide-svelte';
   import { GetDailyDates, GetDailyOverview, SaveContactBook } from '../../../wailsjs/go/main/App';
-  import { verifyAndRun } from '../stores/auth';
   import { draftGuard, markDraftSaved, requestNavigation, dirty, saving } from '../stores/draft';
   import HistoryNav from '../components/HistoryNav.svelte';
   export let presentation = false;
@@ -29,11 +28,14 @@
     finally { ready = true; }
   }
   async function save() {
+    if ($saving) return;
+    saving.set(true);
     error = '';
     try {
-      await verifyAndRun(() => SaveContactBook(date, items.filter(item => item.trim()), legacyMorningReview, nextDayReview.trim()), '儲存聯絡簿');
+      await SaveContactBook(date, items.filter(item => item.trim()), legacyMorningReview, nextDayReview.trim());
       markDraftSaved();
     } catch (e) { error = String(e); throw e; }
+    finally { saving.set(false); }
   }
   function move(index: number, direction: number) {
     const next = [...items];
