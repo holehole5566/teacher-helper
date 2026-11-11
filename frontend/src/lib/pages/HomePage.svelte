@@ -173,12 +173,10 @@
     <div class="daily-notices">
       <section class="card scheduled-review" aria-labelledby="scheduled-review-title">
         <h3 id="scheduled-review-title">今日複習考</h3>
-        <p class="review-source">前一個上課日聯絡簿的複習考提醒</p>
         {#if reviewFromYesterday}<p class="review-content">{reviewFromYesterday}</p>{:else}<p class="no-data">尚無複習考提醒</p>{/if}
       </section>
       <section class="card daily-homework" aria-labelledby="daily-homework-title">
         <h3 id="daily-homework-title">今日作業與提醒</h3>
-        <p class="review-source">當天聯絡簿的聯絡事項</p>
         {#if contactItems.length}
           <ol>{#each contactItems as item}<li>{item}</li>{/each}</ol>
         {:else}<p class="no-data">尚無作業與提醒，可至聯絡簿新增。</p>{/if}
@@ -227,12 +225,10 @@
     <div class="daily-notices">
       <section class="card scheduled-review" aria-labelledby="scheduled-review-title">
         <h3 id="scheduled-review-title">今日複習考</h3>
-        <p class="review-source">前一個上課日聯絡簿的複習考提醒</p>
         {#if reviewFromYesterday}<p class="review-content">{reviewFromYesterday}</p>{:else}<p class="no-data">尚無複習考提醒</p>{/if}
       </section>
       <section class="card daily-homework" aria-labelledby="daily-homework-title">
         <h3 id="daily-homework-title">今日作業與提醒</h3>
-        <p class="review-source">當天聯絡簿的聯絡事項</p>
         {#if contactItems.length}
           <ol>{#each contactItems as item}<li>{item}</li>{/each}</ol>
         {:else}<p class="no-data">尚無作業與提醒，可至聯絡簿新增。</p>{/if}
@@ -311,19 +307,19 @@
   .daily-notices { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.7fr); gap:12px; margin-bottom:12px; }
   .daily-notices > section { min-width:0; padding:12px 16px; }
   .daily-notices h3 { font-size:16px; margin-bottom:4px; }
-  .daily-homework ol { padding-left:1.5em; max-height:100px; overflow-y:auto; scrollbar-width:thin; }
-  .daily-homework li { font-size:16px; line-height:1.5; padding:1px 0; white-space:pre-wrap; overflow-wrap:anywhere; }
-  .review-source { font-size:12px; color:var(--text-secondary); margin-bottom:6px; }
-  .review-content { font-size:16px; line-height:1.5; font-weight:600; white-space:pre-wrap; overflow-wrap:anywhere; max-height:100px; overflow-y:auto; scrollbar-width:thin; }
+  .daily-homework ol { padding-left:1.5em; font-size:max(20px, calc(var(--ui-font, 14px) * 20 / 14)); }
+  .daily-homework li { font-size:inherit; line-height:1.5; padding:1px 0; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .review-content { font-size:max(16px, var(--ui-font, 14px)); line-height:1.5; font-weight:600; white-space:pre-wrap; overflow-wrap:anywhere; }
   .daily-notices .no-data { font-size:14px; }
   .presentation .daily-notices h3 { font-size:18px; }
-  .presentation .daily-homework li, .presentation .review-content { font-size:clamp(16px,1.25vw,22px); }
+  .presentation .daily-homework ol { font-size:calc(var(--ui-font, 14px) * 28 / 14); }
+  .presentation .review-content { font-size:calc(var(--ui-font, 14px) * 22 / 14); }
   @media(max-width:700px) { .daily-notices { grid-template-columns:minmax(0, 1fr); } }
   @container workspace (max-width:800px) { .daily-notices { grid-template-columns:minmax(0, 1fr); } }
   .error-message { color:#b91c1c; padding:12px 0; }
   .clock { margin-left:auto; font-variant-numeric:tabular-nums; }
   .presentation { font-size: calc(var(--ui-font, 14px) * 20 / 14); }
-  .presentation .home-grid { grid-template-columns:minmax(0, 1fr) minmax(280px, 1fr); }
+  .presentation .home-grid { grid-template-columns:minmax(0, 0.7fr) minmax(280px, 1.3fr); }
   .presentation .subject, .presentation .name, .presentation .student-name { font-size: calc(var(--ui-font, 14px) * 22 / 14); }
   .presentation .hw-chip, .presentation .seat { font-size: calc(var(--ui-font, 14px) * 16 / 14); }
   button:disabled { cursor:default; }
@@ -361,7 +357,7 @@
   /* Grid layout: timetable left, duty/lunch right */
   .home-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr);
+    grid-template-columns: minmax(0, 0.7fr) minmax(240px, 1.3fr);
     gap: 16px;
     flex: 1;
     min-height: 0;
@@ -577,7 +573,7 @@
     .page:not(.presentation) { --ui-font:clamp(14px, min(1.2vw, 2vh), 22px); }
     .date-header { flex-shrink:0; margin-bottom:clamp(8px, 1.5vh, 20px); }
     .date-header .page-title { margin-bottom:0; }
-    .home-grid, .presentation .home-grid { flex:1; min-height:0; grid-template-columns:minmax(0, 1.2fr) minmax(280px, 1fr); overflow:hidden; }
+    .home-grid, .presentation .home-grid { flex:1; min-height:0; grid-template-columns:minmax(0, 0.7fr) minmax(280px, 1.3fr); overflow:hidden; }
     .timetable-section { display:flex; flex-direction:column; min-height:0; padding:clamp(12px, 2vh, 24px); }
     .class-list { flex:1; min-height:0; display:grid; grid-auto-rows:minmax(36px, 1fr); gap:clamp(2px, .5vh, 8px); overflow-y:auto; }
     .page .class-row { padding:clamp(2px, .6vh, 10px) 12px; }
@@ -586,11 +582,8 @@
     .right-panel { overflow-y:auto; scrollbar-width:thin; padding:0 4px 4px 0; gap:clamp(8px, 1.3vh, 14px); }
     .right-panel > * { flex-shrink:0; }
     .daily-notices > section { padding:clamp(8px, 1.2vh, 14px) 14px; }
-    .daily-homework ol, .review-content { max-height:clamp(48px, 12vh, 130px); }
   }
   @media (min-width:851px) and (max-height:700px) {
-    .right-panel .review-source { display:none; }
     .right-panel .daily-notices h3 { font-size:15px; }
-    .right-panel .daily-homework li, .right-panel .review-content { font-size:15px; }
   }
 </style>
